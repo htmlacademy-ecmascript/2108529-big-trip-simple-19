@@ -3,20 +3,24 @@ import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventView from '../view/event-view';
 import EditEventFormView from '../view/edit-event-form-view';
+import {getRandomArrayElement} from '../utils';
 
 export default class TripsPresenter {
   tripsListComponent = new TripsListView();
 
-  constructor(tripsListContainer) {
+  constructor(tripsListContainer, eventsModel) {
     this.tripsListContainer = tripsListContainer;
+    this.eventsModel = eventsModel;
   }
 
   init() {
+    this.events = [...this.eventsModel.getEvents()];
+
     render(new SortView, this.tripsListContainer);
     render(this.tripsListComponent, this.tripsListContainer);
-    render(new EditEventFormView(), this.tripsListComponent.getElement());
-    for (let i = 0; i < 3; i++) {
-      render(new EventView(), this.tripsListComponent.getElement());
+    render(new EditEventFormView(getRandomArrayElement(this.events)), this.tripsListComponent.getElement());
+    for (let i = 0; i < this.events.length; i++) {
+      render(new EventView(this.events[i]), this.tripsListComponent.getElement());
     }
   }
 }
