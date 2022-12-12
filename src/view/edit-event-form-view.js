@@ -1,21 +1,18 @@
 import { createElement } from '../render';
-import {offersByType} from '../mock/events';
 import dayjs from 'dayjs';
 
-function createAvailableOffersTemplate(type, offers) {
+function createAvailableOffersTemplate(type, offers, offersByType) {
   const eventTypeOffer = offersByType.find((offer) => offer.type === type);
 
-  const availableOffers = eventTypeOffer.offers.map((offer) => {
-    const checked = offers.includes(offer.id);
-    return `<div class="event__offer-selector">
-                         <input class="event__offer-checkbox  visually-hidden" id=${offer.id} type="checkbox" name=${offer.title} ${checked ? 'checked' : ''}>
-                         <label class="event__offer-label" for=${offer.id}>
+  const availableOffers = eventTypeOffer.offers.map((offer) => `<div class="event__offer-selector">
+                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
+                         <label class="event__offer-label" for="event-offer-${offer.id}"}>
                            <span class="event__offer-title">${offer.title}</span>
                            +€&nbsp;
                            <span class="event__offer-price">${offer.price}</span>
                          </label>
-                       </div>`;
-  }).join('');
+                       </div>`
+  ).join('');
   return `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
@@ -40,14 +37,17 @@ function createDestinationTemplate(destination) {
                   </section>`;
 }
 
-function createEditPointTemplate(event) {
+function createEditPointTemplate(event, destinations, offersByType) {
 
-  const {type, destination, dateFrom, dateTo, basePrice, offers} = event;
-  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(type, offers) : '';
+  const {type, destinationId, dateFrom, dateTo, basePrice, offers} = event;
+  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(type, offers, offersByType) : '';
 
   //Deciding whether to display the destination section
+  const destination = destinations.find((item) => item.id === destinationId);
   const isDestinationDisplayed = destination.description || destination.pictures.length;
-  const destinationTemplate = isDestinationDisplayed ? createDestinationTemplate(destination) : '';
+  const destinationTemplate = isDestinationDisplayed
+    ? createDestinationTemplate(destination)
+    : '';
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -152,12 +152,14 @@ function createEditPointTemplate(event) {
 
 export default class EditEventFormView {
 
-  constructor(event) {
+  constructor(event, destinations, offers) {
     this.event = event;
+    this.destinations = destinations;
+    this.offers = offers;
   }
 
   getTemplate() {
-    return createEditPointTemplate(this.event);
+    return createEditPointTemplate(this.event, this.destinations, this.offers );
   }
 
   getElement() {

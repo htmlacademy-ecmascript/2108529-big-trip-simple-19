@@ -18,9 +18,9 @@ export default class TripsPresenter {
 
     render(new SortView, this.tripsListContainer);
     render(this.tripsListComponent, this.tripsListContainer);
-    render(new EditEventFormView(getRandomArrayElement(this.events)), this.tripsListComponent.getElement());
+    render(new EditEventFormView(getRandomArrayElement(this.events), this.eventsModel.destinations, this.eventsModel.offersByType), this.tripsListComponent.getElement());
     for (let i = 0; i < this.events.length; i++) {
-      render(new EventView(this.events[i]), this.tripsListComponent.getElement());
+      render(new EventView(this.events[i], this.eventsModel.destinations, this.eventsModel.offersByType), this.tripsListComponent.getElement());
     }
   }
 }
