@@ -36,7 +36,7 @@ export default class TripsPresenter {
         .filter((offer) => event.offers.includes(offer.id));
 
     const eventComponent = new EventView(event, destination, offers);
-    const eventEditComponent = new EditEventFormView(event, destination, availableOffers);
+    const eventEditComponent = new EditEventFormView(event, destination, availableOffers, false);
 
     const replaceCardToForm = () => {
       this.#tripsListComponent.element.replaceChild(eventEditComponent.element, eventComponent.element);
@@ -46,11 +46,28 @@ export default class TripsPresenter {
       this.#tripsListComponent.element.replaceChild(eventComponent.element, eventEditComponent.element);
     };
 
-    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => replaceCardToForm());
+    const escKeyDownHandler = (evt) => {
+      if (evt.key === 'Escape' || evt.key === 'Esc') {
+        evt.preventDefault();
+        replaceFormToCard();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
+
+    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceCardToForm();
+      document.addEventListener('keydown', escKeyDownHandler);
+    });
 
     eventEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
       evt.preventDefault();
       replaceFormToCard();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    });
+
+    eventEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
+      replaceFormToCard();
+      document.removeEventListener('keydown', escKeyDownHandler);
     });
 
     render(eventComponent, this.#tripsListComponent.element);

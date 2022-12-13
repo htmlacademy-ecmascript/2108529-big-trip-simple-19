@@ -36,7 +36,7 @@ function createDestinationTemplate(destination) {
                   </section>`;
 }
 
-function createEditPointTemplate(event, destination, availableOffers) {
+function createEditPointTemplate(event, destination, availableOffers, isNewPoint) {
 
   const {type, dateFrom, dateTo, basePrice, offers} = event;
   const availableOffersContainer = offers.length ? createAvailableOffersTemplate(offers, availableOffers) : '';
@@ -138,7 +138,10 @@ function createEditPointTemplate(event, destination, availableOffers) {
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+                  ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                  </button>`}
                 </header>
                 <section class="event__details">
                   ${availableOffersContainer}
@@ -154,15 +157,17 @@ export default class EditEventFormView {
   #event = null;
   #destination = null;
   #availableOffers = null;
+  #isNewPoint = Boolean;
 
-  constructor(event, destination, availableOffers) {
+  constructor(event, destination, availableOffers, isNewPoint) {
     this.#event = event;
     this.#destination = destination;
     this.#availableOffers = availableOffers;
+    this.#isNewPoint = isNewPoint;
   }
 
   get template() {
-    return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers);
+    return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers, this.#isNewPoint);
   }
 
   get element() {
