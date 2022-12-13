@@ -1,10 +1,9 @@
 import { createElement } from '../render';
 import dayjs from 'dayjs';
 
-function createAvailableOffersTemplate(type, offers, offersByType) {
-  const eventTypeOffer = offersByType.find((offer) => offer.type === type);
+function createAvailableOffersTemplate(offers, availableOffers) {
 
-  const availableOffers = eventTypeOffer.offers.map((offer) => `<div class="event__offer-selector">
+  const availableOffersElements = availableOffers.map((offer) => `<div class="event__offer-selector">
                          <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
                          <label class="event__offer-label" for="event-offer-${offer.id}"}>
                            <span class="event__offer-title">${offer.title}</span>
@@ -16,7 +15,7 @@ function createAvailableOffersTemplate(type, offers, offersByType) {
   return `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
-                      ${availableOffers}
+                      ${availableOffersElements}
                     </div>
                   </section>`;
 }
@@ -37,13 +36,12 @@ function createDestinationTemplate(destination) {
                   </section>`;
 }
 
-function createEditPointTemplate(event, destinations, offersByType) {
+function createEditPointTemplate(event, destination, availableOffers) {
 
-  const {type, destinationId, dateFrom, dateTo, basePrice, offers} = event;
-  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(type, offers, offersByType) : '';
+  const {type, dateFrom, dateTo, basePrice, offers} = event;
+  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(offers, availableOffers) : '';
 
   //Deciding whether to display the destination section
-  const destination = destinations.find((item) => item.id === destinationId);
   const isDestinationDisplayed = destination.description || destination.pictures.length;
   const destinationTemplate = isDestinationDisplayed
     ? createDestinationTemplate(destination)
@@ -154,17 +152,17 @@ export default class EditEventFormView {
   #element = null;
 
   #event = null;
-  #destinations = null;
-  #offers = null;
+  #destination = null;
+  #availableOffers = null;
 
-  constructor(event, destinations, offers) {
+  constructor(event, destination, availableOffers) {
     this.#event = event;
-    this.#destinations = destinations;
-    this.#offers = offers;
+    this.#destination = destination;
+    this.#availableOffers = availableOffers;
   }
 
   get template() {
-    return createEditPointTemplate(this.#event, this.#destinations, this.#offers );
+    return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers);
   }
 
   get element() {
