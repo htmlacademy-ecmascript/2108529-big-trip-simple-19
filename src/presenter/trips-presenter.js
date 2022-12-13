@@ -23,7 +23,6 @@ export default class TripsPresenter {
 
     render(new SortView, this.#tripsListContainer);
     render(this.#tripsListComponent, this.#tripsListContainer);
-    this.#renderEditEventForm(getRandomArrayElement(this.#events), this.#eventsModel.destinations, this.#eventsModel.offersByType);
     for (let i = 0; i < this.#events.length; i++) {
       this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
     }
