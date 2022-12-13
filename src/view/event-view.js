@@ -46,25 +46,31 @@ function createTripPointTemplate(event, destinations, offersByType) {
 }
 
 export default class EventView {
+  #element = null;
+
+  #event = null;
+  #destinations = null;
+  #offersByType = null;
+
 
   constructor(event, destinations, offersByType) {
-    this.event = event;
-    this.destinations = destinations;
-    this.offersByType = offersByType;
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#offersByType = offersByType;
   }
 
-  getTemplate() {
-    return createTripPointTemplate(this.event, this.destinations, this.offersByType);
+  get template() {
+    return createTripPointTemplate(this.#event, this.#destinations, this.#offersByType);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 }

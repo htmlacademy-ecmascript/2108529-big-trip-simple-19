@@ -151,26 +151,31 @@ function createEditPointTemplate(event, destinations, offersByType) {
 }
 
 export default class EditEventFormView {
+  #element = null;
+
+  #event = null;
+  #destinations = null;
+  #offers = null;
 
   constructor(event, destinations, offers) {
-    this.event = event;
-    this.destinations = destinations;
-    this.offers = offers;
+    this.#event = event;
+    this.#destinations = destinations;
+    this.#offers = offers;
   }
 
-  getTemplate() {
-    return createEditPointTemplate(this.event, this.destinations, this.offers );
+  get template() {
+    return createEditPointTemplate(this.#event, this.#destinations, this.#offers );
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 
 }
