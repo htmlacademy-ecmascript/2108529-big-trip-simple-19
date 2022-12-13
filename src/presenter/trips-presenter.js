@@ -3,7 +3,6 @@ import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventView from '../view/event-view';
 import EditEventFormView from '../view/edit-event-form-view';
-import {getRandomArrayElement} from '../utils';
 
 export default class TripsPresenter {
   #tripsListContainer = null;
@@ -30,19 +29,31 @@ export default class TripsPresenter {
 
   #renderEvent(event, destinations, offersByType) {
     const destination = destinations.find((item) => event.destination === item.id);
+    const availableOffers = offersByType.find((item) => item.type === event.type).offers;
     const offers =
       offersByType
         .find((item) => item.type === event.type).offers
         .filter((offer) => event.offers.includes(offer.id));
 
-    render(new EventView(event, destination, offers), this.#tripsListComponent.element);
-  }
+    const eventComponent = new EventView(event, destination, offers);
+    const eventEditComponent = new EditEventFormView(event, destination, availableOffers);
 
-  #renderEditEventForm(event, destinations, offersByType) {
-    const destination = destinations.find((item) => event.destination === item.id);
-    const availableOffers = offersByType.find((item) => item.type === event.type).offers;
+    const replaceCardToForm = () => {
+      this.#tripsListComponent.element.replaceChild(eventEditComponent.element, eventComponent.element);
+    };
 
-    render (new EditEventFormView(event, destination, availableOffers), this.#tripsListComponent.element);
+    const replaceFormToCard = () => {
+      this.#tripsListComponent.element.replaceChild(eventComponent.element, eventEditComponent.element);
+    };
+
+    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => replaceCardToForm());
+
+    eventEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
+      evt.preventDefault();
+      replaceFormToCard();
+    });
+
+    render(eventComponent, this.#tripsListComponent.element);
   }
 
 }
