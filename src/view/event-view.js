@@ -1,16 +1,12 @@
 import {createElement} from '../render';
 import dayjs from 'dayjs';
 
-function createTripPointTemplate(event, destinations, offersByType) {
+function createTripPointTemplate(event, destination, offers) {
 
-  const {type, destinationId, dateFrom, dateTo, basePrice, offers} = event;
-  const destination = destinations.find((item) => item.id === destinationId);
+  const {type, dateFrom, dateTo, basePrice} = event;
 
-  const eventTypeOffers = offersByType.find((offerType) => offerType.type === type);
-
-  const offersTemplate = eventTypeOffers.offers
-    .filter((offer) => offers.includes(offer.id))
-    .map((offer) => `
+  const offersTemplate =
+    offers.map((offer) => `
                       <li class="event__offer">
                     <span class="event__offer-title">${offer.title}</span>
                     &plus;&euro;&nbsp;
@@ -49,18 +45,18 @@ export default class EventView {
   #element = null;
 
   #event = null;
-  #destinations = null;
-  #offersByType = null;
+  #destination = null;
+  #offers = null;
 
 
-  constructor(event, destinations, offersByType) {
+  constructor(event, destination, offers) {
     this.#event = event;
-    this.#destinations = destinations;
-    this.#offersByType = offersByType;
+    this.#destination = destination;
+    this.#offers = offers;
   }
 
   get template() {
-    return createTripPointTemplate(this.#event, this.#destinations, this.#offersByType);
+    return createTripPointTemplate(this.#event, this.#destination, this.#offers);
   }
 
   get element() {

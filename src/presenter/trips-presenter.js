@@ -25,7 +25,18 @@ export default class TripsPresenter {
     render(this.#tripsListComponent, this.#tripsListContainer);
     render(new EditEventFormView(getRandomArrayElement(this.#events), this.#eventsModel.destinations, this.#eventsModel.offersByType), this.#tripsListComponent.element);
     for (let i = 0; i < this.#events.length; i++) {
-      render(new EventView(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType), this.#tripsListComponent.element);
+      this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
     }
   }
+
+  #renderEvent(event, destinations, offersByType) {
+    const destination = destinations.find((item) => event.destination === item.id);
+    const offers =
+      offersByType
+        .find((item) => item.type === event.type).offers
+        .filter((offer) => event.offers.includes(offer.id));
+
+    render(new EventView(event, destination, offers), this.#tripsListComponent.element);
+  }
+
 }
