@@ -1,9 +1,19 @@
-import {mockEvents} from '../mock/events';
+import {mockEvents, destinations, offersByType} from '../mock/events';
 
 export default class EventsModel {
-  events = mockEvents;
+  #events = mockEvents;
+  #destinations = destinations;
+  #offersByType = offersByType;
 
-  getEvents() {
-    return this.events;
+  get events() {
+    return this.#events;
+  }
+
+  get destinations() {
+    return this.#destinations;
+  }
+
+  get offersByType() {
+    return this.#offersByType;
   }
 }

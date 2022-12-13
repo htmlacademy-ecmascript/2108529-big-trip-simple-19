@@ -1,25 +1,21 @@
 import { createElement } from '../render';
-import {offersByType} from '../mock/events';
 import dayjs from 'dayjs';
 
-function createAvailableOffersTemplate(type, offers) {
-  const eventTypeOffer = offersByType.find((offer) => offer.type === type);
+function createAvailableOffersTemplate(offers, availableOffers) {
 
-  const availableOffers = eventTypeOffer.offers.map((offer) => {
-    const checked = offers.includes(offer.id);
-    return `<div class="event__offer-selector">
-                         <input class="event__offer-checkbox  visually-hidden" id=${offer.id} type="checkbox" name=${offer.title} ${checked ? 'checked' : ''}>
-                         <label class="event__offer-label" for=${offer.id}>
+  const availableOffersElements = availableOffers.map((offer) => `<div class="event__offer-selector">
+                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
+                         <label class="event__offer-label" for="event-offer-${offer.id}"}>
                            <span class="event__offer-title">${offer.title}</span>
                            +€&nbsp;
                            <span class="event__offer-price">${offer.price}</span>
                          </label>
-                       </div>`;
-  }).join('');
+                       </div>`
+  ).join('');
   return `<section class="event__section  event__section--offers">
                     <h3 class="event__section-title  event__section-title--offers">Offers</h3>
                     <div class="event__available-offers">
-                      ${availableOffers}
+                      ${availableOffersElements}
                     </div>
                   </section>`;
 }
@@ -40,14 +36,16 @@ function createDestinationTemplate(destination) {
                   </section>`;
 }
 
-function createEditPointTemplate(event) {
+function createEditPointTemplate(event, destination, availableOffers, isNewPoint) {
 
-  const {type, destination, dateFrom, dateTo, basePrice, offers} = event;
-  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(type, offers) : '';
+  const {type, dateFrom, dateTo, basePrice, offers} = event;
+  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(offers, availableOffers) : '';
 
   //Deciding whether to display the destination section
   const isDestinationDisplayed = destination.description || destination.pictures.length;
-  const destinationTemplate = isDestinationDisplayed ? createDestinationTemplate(destination) : '';
+  const destinationTemplate = isDestinationDisplayed
+    ? createDestinationTemplate(destination)
+    : '';
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -140,7 +138,10 @@ function createEditPointTemplate(event) {
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">Cancel</button>
+                  <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+                  ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
+                    <span class="visually-hidden">Open event</span>
+                  </button>`}
                 </header>
                 <section class="event__details">
                   ${availableOffersContainer}
@@ -151,24 +152,33 @@ function createEditPointTemplate(event) {
 }
 
 export default class EditEventFormView {
+  #element = null;
 
-  constructor(event) {
-    this.event = event;
+  #event = null;
+  #destination = null;
+  #availableOffers = null;
+  #isNewPoint = Boolean;
+
+  constructor(event, destination, availableOffers, isNewPoint) {
+    this.#event = event;
+    this.#destination = destination;
+    this.#availableOffers = availableOffers;
+    this.#isNewPoint = isNewPoint;
   }
 
-  getTemplate() {
-    return createEditPointTemplate(this.event);
+  get template() {
+    return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers, this.#isNewPoint);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
+  get element() {
+    if (!this.#element) {
+      this.#element = createElement(this.template);
     }
-    return this.element;
+    return this.#element;
   }
 
   removeElement() {
-    this.element = null;
+    this.#element = null;
   }
 
 }
