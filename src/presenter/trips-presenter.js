@@ -3,6 +3,7 @@ import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventView from '../view/event-view';
 import EditEventFormView from '../view/edit-event-form-view';
+import NoEventsView from '../view/no-events-view';
 
 export default class TripsPresenter {
   #tripsListContainer = null;
@@ -20,11 +21,7 @@ export default class TripsPresenter {
   init() {
     this.#events = [...this.#eventsModel.events];
 
-    render(new SortView, this.#tripsListContainer);
-    render(this.#tripsListComponent, this.#tripsListContainer);
-    for (let i = 0; i < this.#events.length; i++) {
-      this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
-    }
+    this.#renderEventsList();
   }
 
   #renderEvent(event, destinations, offersByType) {
@@ -73,4 +70,15 @@ export default class TripsPresenter {
     render(eventComponent, this.#tripsListComponent.element);
   }
 
+  #renderEventsList() {
+    if (this.#events.length) {
+      render(new SortView, this.#tripsListContainer);
+      render(this.#tripsListComponent, this.#tripsListContainer);
+      for (let i = 0; i < this.#events.length; i++) {
+        this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
+      }
+    } else {
+      render(new NoEventsView(), this.#tripsListContainer);
+    }
+  }
 }
