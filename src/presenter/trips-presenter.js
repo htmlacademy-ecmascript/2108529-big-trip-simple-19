@@ -20,11 +20,7 @@ export default class TripsPresenter {
   init() {
     this.#events = [...this.#eventsModel.events];
 
-    render(new SortView, this.#tripsListContainer);
-    render(this.#tripsListComponent, this.#tripsListContainer);
-    for (let i = 0; i < this.#events.length; i++) {
-      this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
-    }
+    this.#renderEventsList();
   }
 
   #renderEvent(event, destinations, offersByType) {
@@ -71,6 +67,14 @@ export default class TripsPresenter {
     });
 
     render(eventComponent, this.#tripsListComponent.element);
+  }
+
+  #renderEventsList() {
+    render(new SortView, this.#tripsListContainer);
+    render(this.#tripsListComponent, this.#tripsListContainer);
+    for (let i = 0; i < this.#events.length; i++) {
+      this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
+    }
   }
 
 }
