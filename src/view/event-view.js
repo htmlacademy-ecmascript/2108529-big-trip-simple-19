@@ -1,4 +1,4 @@
-import {createElement} from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
 
 function createTripPointTemplate(event, destination, offers) {
@@ -41,15 +41,14 @@ function createTripPointTemplate(event, destination, offers) {
             </li>`;
 }
 
-export default class EventView {
-  #element = null;
-
+export default class EventView extends AbstractView {
   #event = null;
   #destination = null;
   #offers = null;
 
 
   constructor(event, destination, offers) {
+    super();
     this.#event = event;
     this.#destination = destination;
     this.#offers = offers;
@@ -57,16 +56,5 @@ export default class EventView {
 
   get template() {
     return createTripPointTemplate(this.#event, this.#destination, this.#offers);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 }

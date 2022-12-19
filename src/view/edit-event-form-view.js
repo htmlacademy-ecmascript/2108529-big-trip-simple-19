@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
 
 function createAvailableOffersTemplate(offers, availableOffers) {
@@ -151,15 +151,14 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
             </li>`;
 }
 
-export default class EditEventFormView {
-  #element = null;
-
+export default class EditEventFormView extends AbstractView {
   #event = null;
   #destination = null;
   #availableOffers = null;
   #isNewPoint = Boolean;
 
   constructor(event, destination, availableOffers, isNewPoint) {
+    super();
     this.#event = event;
     this.#destination = destination;
     this.#availableOffers = availableOffers;
@@ -168,17 +167,6 @@ export default class EditEventFormView {
 
   get template() {
     return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers, this.#isNewPoint);
-  }
-
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
-
-  removeElement() {
-    this.#element = null;
   }
 
 }
