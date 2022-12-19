@@ -1,4 +1,4 @@
-import {render} from '../render';
+import {render, replace} from '../framework/render';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventView from '../view/event-view';
@@ -36,11 +36,11 @@ export default class TripsPresenter {
     const eventEditComponent = new EditEventFormView(event, destination, availableOffers, false);
 
     const replaceCardToForm = () => {
-      this.#tripsListComponent.element.replaceChild(eventEditComponent.element, eventComponent.element);
+      replace(eventEditComponent, eventComponent);
     };
 
     const replaceFormToCard = () => {
-      this.#tripsListComponent.element.replaceChild(eventComponent.element, eventEditComponent.element);
+      replace(eventComponent, eventEditComponent);
     };
 
     const escKeyDownHandler = (evt) => {
