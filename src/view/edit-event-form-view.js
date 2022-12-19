@@ -156,17 +156,35 @@ export default class EditEventFormView extends AbstractView {
   #destination = null;
   #availableOffers = null;
   #isNewPoint = Boolean;
+  #handleFormSubmit = null;
+  handleRollupButtonClick = null;
 
-  constructor(event, destination, availableOffers, isNewPoint) {
+  constructor({event, destination, availableOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
     this.#event = event;
     this.#destination = destination;
     this.#availableOffers = availableOffers;
     this.#isNewPoint = isNewPoint;
+    this.#handleFormSubmit = onFormSubmit;
+    this.handleRollupButtonClick = onRollupButtonClick;
+
+    this.element.querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupButtonClickHandler);
   }
 
   get template() {
     return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers, this.#isNewPoint);
   }
 
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this. #handleFormSubmit();
+  };
+
+  #rollupButtonClickHandler = () => {
+    this.handleRollupButtonClick();
+  };
 }

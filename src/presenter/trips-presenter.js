@@ -32,17 +32,6 @@ export default class TripsPresenter {
         .find((item) => item.type === event.type).offers
         .filter((offer) => event.offers.includes(offer.id));
 
-    const eventComponent = new EventView(event, destination, offers);
-    const eventEditComponent = new EditEventFormView(event, destination, availableOffers, false);
-
-    const replaceCardToForm = () => {
-      replace(eventEditComponent, eventComponent);
-    };
-
-    const replaceFormToCard = () => {
-      replace(eventComponent, eventEditComponent);
-    };
-
     const escKeyDownHandler = (evt) => {
       if (evt.key === 'Escape' || evt.key === 'Esc') {
         evt.preventDefault();
@@ -51,21 +40,40 @@ export default class TripsPresenter {
       }
     };
 
-    eventComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      replaceCardToForm();
-      document.addEventListener('keydown', escKeyDownHandler);
-    });
+    const eventComponent = new EventView(
+      {
+        event,
+        destination,
+        offers,
+        onRollupButtonClick: () => {
+          replaceCardToForm.call(this);
+          document.addEventListener('keydown', escKeyDownHandler);
+        }
+      }
+    );
+    const eventEditComponent = new EditEventFormView(
+      {
+        event,
+        destination,
+        availableOffers,
+        isNewPoint: false,
+        onFormSubmit: closeEventEditForm,
+        onRollupButtonClick: closeEventEditForm
+      }
+    );
 
-    eventEditComponent.element.querySelector('form').addEventListener('submit', (evt) => {
-      evt.preventDefault();
+    function replaceCardToForm() {
+      replace(eventEditComponent, eventComponent);
+    }
+
+    function replaceFormToCard() {
+      replace(eventComponent, eventEditComponent);
+    }
+
+    function closeEventEditForm() {
       replaceFormToCard();
       document.removeEventListener('keydown', escKeyDownHandler);
-    });
-
-    eventEditComponent.element.querySelector('.event__rollup-btn').addEventListener('click', () => {
-      replaceFormToCard();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    });
+    }
 
     render(eventComponent, this.#tripsListComponent.element);
   }
