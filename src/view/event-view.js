@@ -1,4 +1,4 @@
-import {createElement} from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
 
 function createTripPointTemplate(event, destination, offers) {
@@ -41,32 +41,30 @@ function createTripPointTemplate(event, destination, offers) {
             </li>`;
 }
 
-export default class EventView {
-  #element = null;
-
+export default class EventView extends AbstractView {
   #event = null;
   #destination = null;
   #offers = null;
+  #handleRollupButtonClick = null;
 
 
-  constructor(event, destination, offers) {
+  constructor({event, destination, offers, onRollupButtonClick}) {
+    super();
     this.#event = event;
     this.#destination = destination;
     this.#offers = offers;
+    this.#handleRollupButtonClick = onRollupButtonClick;
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupButtonClickHandler);
   }
 
   get template() {
     return createTripPointTemplate(this.#event, this.#destination, this.#offers);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+  #rollupButtonClickHandler = () => {
+    this.#handleRollupButtonClick();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
 }

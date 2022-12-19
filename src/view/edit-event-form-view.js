@@ -1,4 +1,4 @@
-import { createElement } from '../render';
+import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
 
 function createAvailableOffersTemplate(offers, availableOffers) {
@@ -151,34 +151,40 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
             </li>`;
 }
 
-export default class EditEventFormView {
-  #element = null;
-
+export default class EditEventFormView extends AbstractView {
   #event = null;
   #destination = null;
   #availableOffers = null;
   #isNewPoint = Boolean;
+  #handleFormSubmit = null;
+  handleRollupButtonClick = null;
 
-  constructor(event, destination, availableOffers, isNewPoint) {
+  constructor({event, destination, availableOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
+    super();
     this.#event = event;
     this.#destination = destination;
     this.#availableOffers = availableOffers;
     this.#isNewPoint = isNewPoint;
+    this.#handleFormSubmit = onFormSubmit;
+    this.handleRollupButtonClick = onRollupButtonClick;
+
+    this.element.querySelector('form')
+      .addEventListener('submit', this.#formSubmitHandler);
+
+    this.element.querySelector('.event__rollup-btn')
+      .addEventListener('click', this.#rollupButtonClickHandler);
   }
 
   get template() {
     return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers, this.#isNewPoint);
   }
 
-  get element() {
-    if (!this.#element) {
-      this.#element = createElement(this.template);
-    }
-    return this.#element;
-  }
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this. #handleFormSubmit();
+  };
 
-  removeElement() {
-    this.#element = null;
-  }
-
+  #rollupButtonClickHandler = () => {
+    this.handleRollupButtonClick();
+  };
 }
