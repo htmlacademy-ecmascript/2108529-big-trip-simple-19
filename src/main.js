@@ -1,4 +1,5 @@
 import {render} from './framework/render';
+import {generateFilters} from './mock/filters';
 import FilterView from './view/filter-view';
 import TripsPresenter from './presenter/trips-presenter';
 import EventsModel from './model/events-model';
@@ -8,6 +9,7 @@ const tripEventsContainer = document.querySelector('.trip-events');
 const eventsModel = new EventsModel();
 const tripsPresenter = new TripsPresenter(tripEventsContainer, eventsModel);
 
-render(new FilterView(), filtersContainer);
+const filtersMockData = generateFilters(eventsModel.events);
+render(new FilterView(filtersMockData), filtersContainer);
 
 tripsPresenter.init();

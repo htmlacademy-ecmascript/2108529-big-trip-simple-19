@@ -1,4 +1,4 @@
-import {getRandomArrayElement, getRandomAmountOfRandomArrayElements} from '../utils';
+import {getRandomArrayElement, getRandomAmountOfRandomArrayElements} from '../utils/common';
 
 const OFFERS_AMOUNT = 4;
 const DESTINATIONS_AMOUNT = 3;

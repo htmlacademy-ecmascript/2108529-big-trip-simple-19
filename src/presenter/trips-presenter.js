@@ -51,6 +51,7 @@ export default class TripsPresenter {
         }
       }
     );
+
     const eventEditComponent = new EditEventFormView(
       {
         event,

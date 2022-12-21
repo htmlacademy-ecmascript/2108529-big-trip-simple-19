@@ -15,5 +15,4 @@ function getRandomAmountOfRandomArrayElements(array) {
   return result;
 }
 
-
 export {getRandomArrayElement, getRandomAmountOfRandomArrayElements};
