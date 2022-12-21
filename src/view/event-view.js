@@ -1,5 +1,5 @@
 import AbstractView from '../framework/view/abstract-view';
-import dayjs from 'dayjs';
+import {humanizeEventDate, humanizeEventTime} from '../utils/event';
 
 function createTripPointTemplate(event, destination, offers) {
 
@@ -15,16 +15,16 @@ function createTripPointTemplate(event, destination, offers) {
 
   return `<li class="trip-events__item">
               <div class="event">
-                <time class="event__date" datetime="2019-03-18">${dayjs(dateFrom).format('MMM')} ${dayjs(dateFrom).format('YY')}</time>
+                <time class="event__date" datetime="2019-03-18">${humanizeEventDate(dateFrom)}</time>
                 <div class="event__type">
                   <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
                 </div>
                 <h3 class="event__title">${type} ${destination.name}</h3>
                 <div class="event__schedule">
                   <p class="event__time">
-                    <time class="event__start-time" datetime=${dateFrom}>11:00</time>
+                    <time class="event__start-time" datetime=${dateFrom}>${humanizeEventTime(dateFrom)}</time>
                     &mdash;
-                    <time class="event__end-time" datetime=${dateTo}>15:00</time>
+                    <time class="event__end-time" datetime=${dateTo}>${humanizeEventTime(dateTo)}</time>
                   </p>
                 </div>
                 <p class="event__price">
