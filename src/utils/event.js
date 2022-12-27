@@ -5,9 +5,7 @@ function humanizeEventDate(date) {
 }
 
 function humanizeEventTime(date) {
-  const dateArray = date.split('');
-  const indexOfT = dateArray.indexOf('T');
-  return dateArray.slice(indexOfT + 1, indexOfT + 6).join('');
+  return dayjs(date).format('HH:mm');
 }
 
 export {humanizeEventDate, humanizeEventTime};

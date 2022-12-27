@@ -10,6 +10,8 @@ export default class TripsPresenter {
   #eventsModel = null;
 
   #tripsListComponent = new TripsListView();
+  #sortComponent = new SortView();
+  #noEventsComponent = new NoEventsView();
 
   #events = [];
 
@@ -79,15 +81,23 @@ export default class TripsPresenter {
     render(eventComponent, this.#tripsListComponent.element);
   }
 
+  #renderSort() {
+    render(this.#sortComponent, this.#tripsListContainer);
+  }
+
+  #renderNoEvents() {
+    render(this.#noEventsComponent, this.#tripsListContainer);
+  }
+
   #renderEventsList() {
     if (this.#events.length) {
-      render(new SortView, this.#tripsListContainer);
+      this.#renderSort();
       render(this.#tripsListComponent, this.#tripsListContainer);
       for (let i = 0; i < this.#events.length; i++) {
         this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
       }
     } else {
-      render(new NoEventsView(), this.#tripsListContainer);
+      this.#renderNoEvents();
     }
   }
 }
