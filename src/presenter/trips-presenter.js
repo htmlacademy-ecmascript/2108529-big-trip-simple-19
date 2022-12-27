@@ -1,8 +1,7 @@
-import {render, replace} from '../framework/render';
+import {render} from '../framework/render';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
-import EventView from '../view/event-view';
-import EditEventFormView from '../view/edit-event-form-view';
+import EventPresenter from './event-presenter';
 import NoEventsView from '../view/no-events-view';
 
 export default class TripsPresenter {
@@ -10,8 +9,11 @@ export default class TripsPresenter {
   #eventsModel = null;
 
   #tripsListComponent = new TripsListView();
+  #sortComponent = new SortView();
+  #noEventsComponent = new NoEventsView();
 
   #events = [];
+  #eventPresenterMap = new Map();
 
   constructor(tripsListContainer, eventsModel) {
     this.#tripsListContainer = tripsListContainer;
@@ -20,74 +22,36 @@ export default class TripsPresenter {
 
   init() {
     this.#events = [...this.#eventsModel.events];
-
     this.#renderEventsList();
   }
 
   #renderEvent(event, destinations, offersByType) {
-    const destination = destinations.find((item) => event.destination === item.id);
-    const availableOffers = offersByType.find((item) => item.type === event.type).offers;
-    const offers =
-      offersByType
-        .find((item) => item.type === event.type).offers
-        .filter((offer) => event.offers.includes(offer.id));
+    const eventPresenter = new EventPresenter(this.#tripsListComponent, this.#handleModeChange);
+    eventPresenter.init(event, destinations, offersByType);
+    this.#eventPresenterMap.set(event.id, eventPresenter);
+  }
 
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape' || evt.key === 'Esc') {
-        evt.preventDefault();
-        replaceFormToCard();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
+  #handleModeChange = () => {
+    this.#eventPresenterMap.forEach((presenter) => presenter.resetView());
+  };
 
-    const eventComponent = new EventView(
-      {
-        event,
-        destination,
-        offers,
-        onRollupButtonClick: () => {
-          replaceCardToForm.call(this);
-          document.addEventListener('keydown', escKeyDownHandler);
-        }
-      }
-    );
+  #renderSort() {
+    render(this.#sortComponent, this.#tripsListContainer);
+  }
 
-    const eventEditComponent = new EditEventFormView(
-      {
-        event,
-        destination,
-        availableOffers,
-        isNewPoint: false,
-        onFormSubmit: closeEventEditForm,
-        onRollupButtonClick: closeEventEditForm
-      }
-    );
-
-    function replaceCardToForm() {
-      replace(eventEditComponent, eventComponent);
-    }
-
-    function replaceFormToCard() {
-      replace(eventComponent, eventEditComponent);
-    }
-
-    function closeEventEditForm() {
-      replaceFormToCard();
-      document.removeEventListener('keydown', escKeyDownHandler);
-    }
-
-    render(eventComponent, this.#tripsListComponent.element);
+  #renderNoEvents() {
+    render(this.#noEventsComponent, this.#tripsListContainer);
   }
 
   #renderEventsList() {
     if (this.#events.length) {
-      render(new SortView, this.#tripsListContainer);
+      this.#renderSort();
       render(this.#tripsListComponent, this.#tripsListContainer);
       for (let i = 0; i < this.#events.length; i++) {
         this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
       }
     } else {
-      render(new NoEventsView(), this.#tripsListContainer);
+      this.#renderNoEvents();
     }
   }
 }

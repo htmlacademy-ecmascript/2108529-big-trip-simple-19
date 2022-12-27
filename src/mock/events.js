@@ -19,37 +19,37 @@ const PICTURES = [
 
 const destinations = Array.from({length: DESTINATIONS_AMOUNT}, (_, index) => (
   {
-    'id': index,
-    'description': `description ${index}`,
-    'name': `name ${index}`,
-    'pictures': getRandomAmountOfRandomArrayElements(PICTURES)
+    id: index,
+    description: `description ${index}`,
+    name: `name ${index}`,
+    pictures: getRandomAmountOfRandomArrayElements(PICTURES)
       .map((picture) => (
         {
-          'src': picture,
-          'description': `description ${index}`
+          src: picture,
+          description: `description ${index}`
         }
       ))
   }
 ));
 
 const offersByType = TYPES.map((type) => ({
-  'type': type,
-  'offers': Array.from({length: OFFERS_AMOUNT}, (_, index) => ({
-    'id': index,
-    'title': `offer ${index + 1}`,
-    'price': `${index + 1}`
+  type: type,
+  offers: Array.from({length: OFFERS_AMOUNT}, (_, index) => ({
+    id: index,
+    title: `offer ${index + 1}`,
+    price: `${index + 1}`
   }))
 }));
 
 const mockEvents = Array.from({length: EVENTS_AMOUNT}, (_, index) => (
   {
-    'id': index,
-    'basePrice': Math.floor(Math.random() * 3000),
-    'dateFrom': '2019-07-10T12:00:56.845Z',
-    'dateTo': '2019-07-11T23:50:13.375Z',
-    'destination': getRandomArrayElement(destinations).id,
-    'offers': getRandomAmountOfRandomArrayElements([1, 2, 3, 4]),
-    'type': getRandomArrayElement(TYPES)
+    id: index,
+    basePrice: Math.floor(Math.random() * 3000),
+    dateFrom: '2019-07-10T12:00:56.845Z',
+    dateTo: '2019-07-11T23:50:13.375Z',
+    destination: getRandomArrayElement(destinations).id,
+    offers: getRandomAmountOfRandomArrayElements([1, 2, 3, 4]),
+    type: getRandomArrayElement(TYPES)
   }
 ));
 
