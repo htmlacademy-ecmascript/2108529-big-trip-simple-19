@@ -2,6 +2,10 @@ import EventView from '../view/event-view';
 import EditEventFormView from '../view/edit-event-form-view';
 import {render, replace} from '../framework/render';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
 
 export default class EventPresenter {
   #tripsListComponent = null;
@@ -14,8 +18,12 @@ export default class EventPresenter {
   #availableOffers = null;
   #offers = null;
 
-  constructor(tripsListComponent) {
+  #handleModeChange = null;
+  #mode = Mode.DEFAULT;
+
+  constructor(tripsListComponent, handleModeChange) {
     this.#tripsListComponent = tripsListComponent;
+    this.#handleModeChange = handleModeChange;
   }
 
   init(event, destinations, offersByType) {
@@ -54,11 +62,20 @@ export default class EventPresenter {
     render(this.#eventComponent, this.#tripsListComponent.element);
   }
 
+  resetView = () => {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceFormToCard();
+    }
+  };
+
   #replaceCardToForm = () => {
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
     replace(this.#eventEditComponent, this.#eventComponent);
   };
 
   #replaceFormToCard = () => {
+    this.#mode = Mode.DEFAULT;
     replace(this.#eventComponent, this.#eventEditComponent);
   };
 

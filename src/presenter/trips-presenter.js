@@ -13,6 +13,7 @@ export default class TripsPresenter {
   #noEventsComponent = new NoEventsView();
 
   #events = [];
+  #eventPresenterMap = new Map();
 
   constructor(tripsListContainer, eventsModel) {
     this.#tripsListContainer = tripsListContainer;
@@ -21,14 +22,18 @@ export default class TripsPresenter {
 
   init() {
     this.#events = [...this.#eventsModel.events];
-
     this.#renderEventsList();
   }
 
   #renderEvent(event, destinations, offersByType) {
-    const eventPresenter = new EventPresenter(this.#tripsListComponent);
+    const eventPresenter = new EventPresenter(this.#tripsListComponent, this.#handleModeChange);
     eventPresenter.init(event, destinations, offersByType);
+    this.#eventPresenterMap.set(event.id, eventPresenter);
   }
+
+  #handleModeChange = () => {
+    this.#eventPresenterMap.forEach((presenter) => presenter.resetView());
+  };
 
   #renderSort() {
     render(this.#sortComponent, this.#tripsListContainer);
