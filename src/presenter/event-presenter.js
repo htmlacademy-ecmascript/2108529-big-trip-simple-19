@@ -1,6 +1,6 @@
 import EventView from '../view/event-view';
 import EditEventFormView from '../view/edit-event-form-view';
-import {render, replace} from '../framework/render';
+import {render, replace, remove} from '../framework/render';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -94,5 +94,10 @@ export default class EventPresenter {
   #handleFormSubmit = () => {
     this.#replaceFormToCard();
   };
+
+  destroy() {
+    remove(this.#eventComponent);
+    remove(this.#eventEditComponent);
+  }
 
 }
