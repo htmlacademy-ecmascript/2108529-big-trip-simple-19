@@ -1,4 +1,6 @@
-import {render} from '../framework/render';
+import {render, remove} from '../framework/render';
+import {sortByDate, sortByPrice} from '../utils/event';
+import {SortType} from '../const';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventPresenter from './event-presenter';
@@ -9,7 +11,7 @@ export default class TripsPresenter {
   #eventsModel = null;
 
   #tripsListComponent = new TripsListView();
-  #sortComponent = new SortView();
+  #sortComponent = null;
   #noEventsComponent = new NoEventsView();
 
   #events = [];
@@ -21,7 +23,7 @@ export default class TripsPresenter {
   }
 
   init() {
-    this.#events = [...this.#eventsModel.events];
+    this.#events = [...this.#eventsModel.events.sort(sortByDate)];
     this.#renderEventsList();
   }
 
@@ -35,7 +37,27 @@ export default class TripsPresenter {
     this.#eventPresenterMap.forEach((presenter) => presenter.resetView());
   };
 
+  #handleSortTypeChange = (event) => {
+    this.#sortEvents(event.target.value);
+    this.#clearEventsList();
+    this.#renderEventsList();
+  };
+
+  #sortEvents = (sortType) => {
+    switch (sortType) {
+      case SortType.DAY:
+        this.#events.sort(sortByDate);
+        break;
+      case SortType.PRICE:
+        this.#events.sort(sortByPrice);
+        break;
+    }
+  };
+
   #renderSort() {
+    this.#sortComponent = new SortView({
+      handleSortTypeChange: this.#handleSortTypeChange
+    });
     render(this.#sortComponent, this.#tripsListContainer);
   }
 
@@ -45,7 +67,9 @@ export default class TripsPresenter {
 
   #renderEventsList() {
     if (this.#events.length) {
-      this.#renderSort();
+      if (!this.#sortComponent) {
+        this.#renderSort();
+      }
       render(this.#tripsListComponent, this.#tripsListContainer);
       for (let i = 0; i < this.#events.length; i++) {
         this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
@@ -53,5 +77,10 @@ export default class TripsPresenter {
     } else {
       this.#renderNoEvents();
     }
+  }
+
+  #clearEventsList() {
+    this.#eventPresenterMap.forEach((presenter) => presenter.destroy());
+    this.#eventPresenterMap.clear();
   }
 }

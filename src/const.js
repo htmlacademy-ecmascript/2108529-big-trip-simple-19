@@ -3,4 +3,9 @@ const filterTypes = {
   FUTURE: 'future'
 };
 
-export {filterTypes};
+const SortType = {
+  DAY: 'sort-day',
+  PRICE: 'sort-price'
+};
+
+export {filterTypes, SortType};
