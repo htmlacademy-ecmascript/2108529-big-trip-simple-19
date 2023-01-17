@@ -15,6 +15,7 @@ export default class EventPresenter {
 
   #event = null;
   #destination = null;
+  #allOffers = null;
   #availableOffers = null;
   #offers = null;
 
@@ -28,7 +29,7 @@ export default class EventPresenter {
 
   init(event, destinations, offersByType) {
     this.#event = event;
-
+    this.#allOffers = offersByType;
     this.#destination = destinations.find((item) => this.#event.destination === item.id);
     this.#availableOffers = offersByType.find((item) => item.type === this.#event.type).offers;
     this.#offers = this.#availableOffers.filter((offer) => this.#event.offers.includes(offer.id));
@@ -49,7 +50,7 @@ export default class EventPresenter {
       {
         event: this.#event,
         destination: this.#destination,
-        availableOffers: this.#availableOffers,
+        allOffers: this.#allOffers,
         isNewPoint: false,
         onFormSubmit: this.#handleFormSubmit,
         onRollupButtonClick: this.#closeEventEditForm

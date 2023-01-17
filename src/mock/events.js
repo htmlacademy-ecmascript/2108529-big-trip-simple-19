@@ -1,7 +1,7 @@
 import {getRandomArrayElement, getRandomAmountOfRandomArrayElements} from '../utils/common';
 
 const OFFERS_AMOUNT = 4;
-const DESTINATIONS_AMOUNT = 3;
+const DESTINATIONS_AMOUNT = 15;
 const EVENTS_AMOUNT = 5;
 
 const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
@@ -38,7 +38,7 @@ const offersByType = TYPES.map((type) => ({
   type: type,
   offers: Array.from({length: OFFERS_AMOUNT}, (_, index) => ({
     id: index,
-    title: `offer ${index + 1}`,
+    title: `offer ${Math.round(Math.random() * 1000)}`,
     price: `${index + 1}`
   }))
 }));
