@@ -17,11 +17,13 @@ const PICTURES = [
   'https://planetofhotels.com/guide/sites/default/files/styles/big_gallery_image/public/text_gallery/Amsterdam-4.jpg',
 ];
 
+const destinationNames = ['Amsterdam', 'Geneva', 'Chamonix'];
+
 const destinations = Array.from({length: DESTINATIONS_AMOUNT}, (_, index) => (
   {
     id: index,
     description: `description ${index}`,
-    name: `name ${index}`,
+    name: getRandomArrayElement(destinationNames),
     pictures: getRandomAmountOfRandomArrayElements(PICTURES)
       .map((picture) => (
         {

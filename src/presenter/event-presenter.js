@@ -29,12 +29,9 @@ export default class EventPresenter {
   init(event, destinations, offersByType) {
     this.#event = event;
 
-    this.#destination = destinations.find((item) => event.destination === item.id);
-    this.#availableOffers = offersByType.find((item) => item.type === event.type).offers;
-    this.#offers =
-      offersByType
-        .find((item) => item.type === event.type).offers
-        .filter((offer) => event.offers.includes(offer.id));
+    this.#destination = destinations.find((item) => this.#event.destination === item.id);
+    this.#availableOffers = offersByType.find((item) => item.type === this.#event.type).offers;
+    this.#offers = this.#availableOffers.filter((offer) => this.#event.offers.includes(offer.id));
 
     this.#eventComponent = new EventView(
       {

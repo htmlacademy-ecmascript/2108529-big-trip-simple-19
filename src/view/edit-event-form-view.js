@@ -1,5 +1,5 @@
-import AbstractView from '../framework/view/abstract-view';
 import dayjs from 'dayjs';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 
 function createAvailableOffersTemplate(offers, availableOffers) {
 
@@ -30,7 +30,7 @@ function createDestinationTemplate(destination) {
                       </div>
                     </div>` : '';
   return `<section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+                    <h3 class="event__section-title  event__section-title--destination">${destination.name}</h3>
                     ${destination.description ? `<p class="event__destination-description">${destination.description}</p>` : ''}
                     ${destinationPhotosContainer}
                   </section>`;
@@ -151,8 +151,7 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
             </li>`;
 }
 
-export default class EditEventFormView extends AbstractView {
-  #event = null;
+export default class EditEventFormView extends AbstractStatefulView {
   #destination = null;
   #availableOffers = null;
   #isNewPoint = Boolean;
@@ -161,7 +160,7 @@ export default class EditEventFormView extends AbstractView {
 
   constructor({event, destination, availableOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
-    this.#event = event;
+    this._setState(event);
     this.#destination = destination;
     this.#availableOffers = availableOffers;
     this.#isNewPoint = isNewPoint;
@@ -170,12 +169,25 @@ export default class EditEventFormView extends AbstractView {
 
     this.element.querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
-
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
+    this.element.querySelector('.event__type-list')
+      .addEventListener('change', this.#eventTypeChangeHandler);
+  }
+
+  _restoreHandlers() {
+
   }
 
   get template() {
-    return createEditPointTemplate(this.#event, this.#destination, this.#availableOffers, this.#isNewPoint);
+    return createEditPointTemplate(this._state, this.#destination, this.#availableOffers, this.#isNewPoint);
   }
+
+  #eventTypeChangeHandler = (evt) => {
+    evt.preventDefault();
+    const {value, className} = evt.target;
+    if (className.includes('event__type-input')) {
+      this.updateElement({type: value});
+    }
+  };
 }
