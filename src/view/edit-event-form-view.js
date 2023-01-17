@@ -49,7 +49,7 @@ function createEventTypesList(types, eventType) {
 function createEditPointTemplate(event, destination, availableOffers, isNewPoint, allOffers) {
 
   const {type, dateFrom, dateTo, basePrice, offers} = event;
-  const availableOffersContainer = offers.length ? createAvailableOffersTemplate(offers, availableOffers) : '';
+  const availableOffersContainer = availableOffers.length ? createAvailableOffersTemplate(offers, availableOffers) : '';
 
   const eventTypes = allOffers.map((offer) => offer.type);
   const eventTypesList = createEventTypesList(eventTypes, type);
@@ -127,6 +127,9 @@ export default class EditEventFormView extends AbstractStatefulView {
   #handleFormSubmit = () => {};
   #handleRollupButtonClick = () => {};
 
+  #sourceOffers = null;
+  #sourceType = null;
+
   constructor({event, destination, allOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
     this.#destination = destination;
@@ -135,6 +138,8 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#handleFormSubmit = onFormSubmit;
     this.#handleRollupButtonClick = onRollupButtonClick;
     this._setState(EditEventFormView.parseEventToState(event, this.#allOffers));
+    this.#sourceOffers = this._state.offers;
+    this.#sourceType = event.type;
 
     this._restoreHandlers();
   }
@@ -172,11 +177,15 @@ export default class EditEventFormView extends AbstractStatefulView {
 
   #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
-    console.log(evt.target.checked);
     const type = evt.target.value;
     const availableOffers = this.#allOffers.find((item) => item.type === type).offers;
+
+    // Сохранение изначальных офферов при смене типа точки маршрута (по приколу)
+    const offers = type === this.#sourceType ? this.#sourceOffers : [];
+
     if (evt.target.className.includes('event__type-input')) {
-      this.updateElement({type, availableOffers});
+      this.updateElement({type, availableOffers, offers});
     }
+
   };
 }
