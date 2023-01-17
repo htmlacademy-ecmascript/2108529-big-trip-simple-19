@@ -1,4 +1,4 @@
-import {render, remove} from '../framework/render';
+import {render} from '../framework/render';
 import {sortByDate, sortByPrice} from '../utils/event';
 import {SortType} from '../const';
 import SortView from '../view/sort-view';
@@ -39,8 +39,7 @@ export default class TripsPresenter {
 
   #handleSortTypeChange = (event) => {
     this.#sortEvents(event.target.value);
-    this.#clearEventsList();
-    this.#renderEventsList();
+    this.#rerenderEventsList();
   };
 
   #sortEvents = (sortType) => {
@@ -82,5 +81,10 @@ export default class TripsPresenter {
   #clearEventsList() {
     this.#eventPresenterMap.forEach((presenter) => presenter.destroy());
     this.#eventPresenterMap.clear();
+  }
+
+  #rerenderEventsList() {
+    this.#clearEventsList();
+    this.#renderEventsList();
   }
 }

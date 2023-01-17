@@ -1,7 +1,7 @@
 import {getRandomArrayElement, getRandomAmountOfRandomArrayElements} from '../utils/common';
 
 const OFFERS_AMOUNT = 4;
-const DESTINATIONS_AMOUNT = 3;
+// const DESTINATIONS_AMOUNT = 15;
 const EVENTS_AMOUNT = 5;
 
 const TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
@@ -17,26 +17,67 @@ const PICTURES = [
   'https://planetofhotels.com/guide/sites/default/files/styles/big_gallery_image/public/text_gallery/Amsterdam-4.jpg',
 ];
 
-const destinations = Array.from({length: DESTINATIONS_AMOUNT}, (_, index) => (
+// const destinationNames = ['amsterdam', 'geneva', 'chamonix'];
+
+// const destinations = Array.from({length: DESTINATIONS_AMOUNT}, (_, index) => (
+//   {
+//     id: index,
+//     description: `description ${index}`,
+//     name: getRandomArrayElement(destinationNames),
+//     pictures: getRandomAmountOfRandomArrayElements(PICTURES)
+//       .map((picture) => (
+//         {
+//           src: picture,
+//           description: `description ${index}`
+//         }
+//       ))
+//   }
+// ));
+
+const destinations = [
   {
-    id: index,
-    description: `description ${index}`,
-    name: `name ${index}`,
+    id: 1,
+    description: 'Chamonix description',
+    name: 'Chamonix',
     pictures: getRandomAmountOfRandomArrayElements(PICTURES)
       .map((picture) => (
         {
           src: picture,
-          description: `description ${index}`
+          description: 'description'
         }
       ))
-  }
-));
+  },
+  {
+    id: 2,
+    description: 'Geneva description',
+    name: 'Geneva',
+    pictures: getRandomAmountOfRandomArrayElements(PICTURES)
+      .map((picture) => (
+        {
+          src: picture,
+          description: 'description'
+        }
+      ))
+  },
+  {
+    id: 3,
+    description: 'Amsterdam description',
+    name: 'Amsterdam',
+    pictures: getRandomAmountOfRandomArrayElements(PICTURES)
+      .map((picture) => (
+        {
+          src: picture,
+          description: 'description'
+        }
+      ))
+  },
+];
 
 const offersByType = TYPES.map((type) => ({
   type: type,
   offers: Array.from({length: OFFERS_AMOUNT}, (_, index) => ({
     id: index,
-    title: `offer ${index + 1}`,
+    title: `offer ${Math.round(Math.random() * 1000)}`,
     price: `${index + 1}`
   }))
 }));
