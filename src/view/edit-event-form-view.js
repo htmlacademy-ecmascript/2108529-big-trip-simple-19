@@ -167,16 +167,16 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#handleFormSubmit = onFormSubmit;
     this.#handleRollupButtonClick = onRollupButtonClick;
 
+    this._restoreHandlers();
+  }
+
+  _restoreHandlers() {
     this.element.querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#rollupButtonClickHandler);
     this.element.querySelector('.event__type-list')
       .addEventListener('change', this.#eventTypeChangeHandler);
-  }
-
-  _restoreHandlers() {
-
   }
 
   get template() {
