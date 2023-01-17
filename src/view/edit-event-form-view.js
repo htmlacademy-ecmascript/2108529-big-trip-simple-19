@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
+import {capitalizeWord} from '../utils/common';
 
 function createAvailableOffersTemplate(offers, availableOffers) {
 
@@ -22,43 +23,54 @@ function createAvailableOffersTemplate(offers, availableOffers) {
 
 function createDestinationTemplate(destination) {
 
-  const destinationPhotosContainer = destination.pictures.length ?
+  const {name, description, pictures} = destination;
+
+  const destinationPhotosContainer = pictures.length ?
     `                    <div class="event__photos-container">
                       <div class="event__photos-tape">
-                           ${destination.pictures.map((picture) => `<img class="event__photo" src=${picture.src} alt=${picture.description}>
+                           ${pictures.map((picture) => `<img class="event__photo" src=${picture.src} alt=${picture.description}>
                             `).join('')}
                       </div>
                     </div>` : '';
   return `<section class="event__section  event__section--destination">
-                    <h3 class="event__section-title  event__section-title--destination">${destination.name}</h3>
-                    ${destination.description ? `<p class="event__destination-description">${destination.description}</p>` : ''}
+                    <h3 class="event__section-title  event__section-title--destination">${capitalizeWord(name)}</h3>
+                    ${description ? `<p class="event__destination-description">${description}</p>` : ''}
                     ${destinationPhotosContainer}
                   </section>`;
 }
 
-function createEventTypesList(types, eventType) {
+function createEventTypesListTemplate(types, eventType) {
   return types.map((type) => (
     `<div class="event__type-item">
       <input id="event-type-${type}-1" class="event__type-input  visually-hidden" type="radio" name="event-type"
              value=${type} ${eventType === type ? 'checked' : ''}>
-        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${type[0].toUpperCase() + type.slice(1)}</label>
+        <label class="event__type-label  event__type-label--${type}" for="event-type-${type}-1">${capitalizeWord(type)}</label>
     </div>`
   )).join('');
 }
 
-function createEditPointTemplate(event, destination, availableOffers, isNewPoint, allOffers) {
+function createDestinationNameOptionsTemplate(destinations, event) {
+  const uniqueDestinations = Array.from(new Set(destinations));
+
+  return uniqueDestinations.map((destination) => (
+    `<option value=${destination.name} ${destination.id === event.eventDestination.id ? 'selected' : ''}>${capitalizeWord(destination.name)}</option>`)).join('');
+}
+
+function createEditPointTemplate(event, destination, availableOffers, isNewPoint, allOffers, allDestinations) {
 
   const {type, dateFrom, dateTo, basePrice, offers} = event;
   const availableOffersContainer = availableOffers.length ? createAvailableOffersTemplate(offers, availableOffers) : '';
 
   const eventTypes = allOffers.map((offer) => offer.type);
-  const eventTypesList = createEventTypesList(eventTypes, type);
+  const eventTypesList = createEventTypesListTemplate(eventTypes, type);
 
   //Deciding whether to display the destination section
   const isDestinationDisplayed = destination.description || destination.pictures.length;
   const destinationTemplate = isDestinationDisplayed
     ? createDestinationTemplate(destination)
     : '';
+
+  const destinationNameOptionsTemplate = createDestinationNameOptionsTemplate(allDestinations, event);
 
   return `<li class="trip-events__item">
               <form class="event event--edit" action="#" method="post">
@@ -82,12 +94,7 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
                     <label class="event__label  event__type-output" for="event-destination-1">
                       ${type}
                     </label>
-                    <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value=${destination.name} list="destination-list-1">
-                    <datalist id="destination-list-1">
-                      <option value="Amsterdam"></option>
-                      <option value="Geneva"></option>
-                      <option value="Chamonix"></option>
-                    </datalist>
+                    <select class='event-destination-select'>${destinationNameOptionsTemplate}</select>
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
@@ -122,7 +129,7 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
 
 export default class EditEventFormView extends AbstractStatefulView {
   #allOffers = null;
-  #destination = null;
+  #destinations = null;
   #isNewPoint = Boolean;
   #handleFormSubmit = () => {};
   #handleRollupButtonClick = () => {};
@@ -130,25 +137,28 @@ export default class EditEventFormView extends AbstractStatefulView {
   #sourceOffers = null;
   #sourceType = null;
 
-  constructor({event, destination, allOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
+  constructor({event, destinations, allOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
-    this.#destination = destination;
+    this.#destinations = destinations;
     this.#allOffers = allOffers;
     this.#isNewPoint = isNewPoint;
     this.#handleFormSubmit = onFormSubmit;
     this.#handleRollupButtonClick = onRollupButtonClick;
-    this._setState(EditEventFormView.parseEventToState(event, this.#allOffers));
+    this._setState(EditEventFormView.parseEventToState(event, this.#allOffers, this.#destinations));
+
     this.#sourceOffers = this._state.offers;
     this.#sourceType = event.type;
 
     this._restoreHandlers();
   }
 
-  static parseEventToState(event, allOffers) {
+  static parseEventToState(event, allOffers, destinations) {
     const availableOffers = allOffers.find((item) => item.type === event.type).offers;
+    const eventDestination = destinations.find((item) => event.destination === item.id);
     return {
       ...event,
-      availableOffers
+      availableOffers,
+      eventDestination
     };
   }
 
@@ -159,10 +169,12 @@ export default class EditEventFormView extends AbstractStatefulView {
       .addEventListener('click', this.#rollupButtonClickHandler);
     this.element.querySelector('.event__type-list')
       .addEventListener('change', this.#eventTypeChangeHandler);
+    this.element.querySelector('.event-destination-select')
+      .addEventListener('change', this.#eventDestinationChangeHandler);
   }
 
   get template() {
-    return createEditPointTemplate(this._state, this.#destination, this._state.availableOffers, this.#isNewPoint, this.#allOffers);
+    return createEditPointTemplate(this._state, this._state.eventDestination, this._state.availableOffers, this.#isNewPoint, this.#allOffers, this.#destinations);
   }
 
   #formSubmitHandler = (evt) => {
@@ -186,6 +198,12 @@ export default class EditEventFormView extends AbstractStatefulView {
     if (evt.target.className.includes('event__type-input')) {
       this.updateElement({type, availableOffers, offers});
     }
-
   };
+
+  #eventDestinationChangeHandler = (evt) => {
+    const {value} = evt.target;
+    const newDestination = this.#destinations.find((destination) => destination.name === value);
+    this.updateElement({eventDestination: newDestination});
+  };
+
 }

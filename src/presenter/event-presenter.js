@@ -14,7 +14,7 @@ export default class EventPresenter {
   #eventEditComponent = null;
 
   #event = null;
-  #destination = null;
+  #destinations = null;
   #allOffers = null;
   #availableOffers = null;
   #offers = null;
@@ -30,14 +30,14 @@ export default class EventPresenter {
   init(event, destinations, offersByType) {
     this.#event = event;
     this.#allOffers = offersByType;
-    this.#destination = destinations.find((item) => this.#event.destination === item.id);
+    this.#destinations = destinations;
     this.#availableOffers = offersByType.find((item) => item.type === this.#event.type).offers;
     this.#offers = this.#availableOffers.filter((offer) => this.#event.offers.includes(offer.id));
 
     this.#eventComponent = new EventView(
       {
         event: this.#event,
-        destination: this.#destination,
+        destination: this.#destinations.find((item) => this.#event.destination === item.id),
         offers: this.#offers,
         onRollupButtonClick: () => {
           this.#replaceCardToForm();
@@ -49,7 +49,7 @@ export default class EventPresenter {
     this.#eventEditComponent = new EditEventFormView(
       {
         event: this.#event,
-        destination: this.#destination,
+        destinations: this.#destinations,
         allOffers: this.#allOffers,
         isNewPoint: false,
         onFormSubmit: this.#handleFormSubmit,
