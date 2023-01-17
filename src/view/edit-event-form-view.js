@@ -155,8 +155,8 @@ export default class EditEventFormView extends AbstractStatefulView {
   #destination = null;
   #availableOffers = null;
   #isNewPoint = Boolean;
-  #formSubmitHandler = () => {};
-  #rollupButtonClickHandler = () => {};
+  #handleFormSubmit = () => {};
+  #handleRollupButtonClick = () => {};
 
   constructor({event, destination, availableOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
@@ -164,8 +164,8 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#destination = destination;
     this.#availableOffers = availableOffers;
     this.#isNewPoint = isNewPoint;
-    this.#formSubmitHandler = () => onFormSubmit();
-    this.#rollupButtonClickHandler = () => onRollupButtonClick();
+    this.#handleFormSubmit = onFormSubmit;
+    this.#handleRollupButtonClick = onRollupButtonClick;
 
     this.element.querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
@@ -182,6 +182,16 @@ export default class EditEventFormView extends AbstractStatefulView {
   get template() {
     return createEditPointTemplate(this._state, this.#destination, this.#availableOffers, this.#isNewPoint);
   }
+
+  #formSubmitHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
+
+  #rollupButtonClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleRollupButtonClick();
+  };
 
   #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
