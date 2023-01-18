@@ -1,11 +1,14 @@
 import dayjs from 'dayjs';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {capitalizeWord} from '../utils/common';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import {eventEditDateFormat} from '../const';
 
 function createAvailableOffersTemplate(offers, availableOffers) {
 
   const availableOffersElements = availableOffers.map((offer) => `<div class="event__offer-selector">
-                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
+                         <input data-offer=${offer.id} class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
                          <label class="event__offer-label" for="event-offer-${offer.id}"}>
                            <span class="event__offer-title">${offer.title}</span>
                            +€&nbsp;
@@ -128,14 +131,18 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
 }
 
 export default class EditEventFormView extends AbstractStatefulView {
+  #datepicker = null;
+
   #allOffers = null;
   #destinations = null;
   #isNewPoint = Boolean;
-  #handleFormSubmit = () => {};
-  #handleRollupButtonClick = () => {};
+  #handleFormSubmit = () => {
+  };
+  #handleRollupButtonClick = () => {
+  };
 
-  #sourceOffers = null;
-  #sourceType = null;
+  #sourcedOffers = null;
+  #sourcedType = null;
 
   constructor({event, destinations, allOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
@@ -146,10 +153,19 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#handleRollupButtonClick = onRollupButtonClick;
     this._setState(EditEventFormView.parseEventToState(event, this.#allOffers, this.#destinations));
 
-    this.#sourceOffers = this._state.offers;
-    this.#sourceType = event.type;
+    this.#sourcedOffers = this._state.offers;
+    this.#sourcedType = event.type;
 
     this._restoreHandlers();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
   }
 
   static parseEventToState(event, allOffers, destinations) {
@@ -162,6 +178,16 @@ export default class EditEventFormView extends AbstractStatefulView {
     };
   }
 
+  static parseStateToEvent(state) {
+
+    const event = {...state};
+
+    delete event.eventDestination;
+    delete event.availableOffers;
+
+    return event;
+  }
+
   _restoreHandlers() {
     this.element.querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
@@ -171,15 +197,64 @@ export default class EditEventFormView extends AbstractStatefulView {
       .addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event-destination-select')
       .addEventListener('change', this.#eventDestinationChangeHandler);
+    this.element.querySelector('.event__available-offers')
+      .addEventListener('change', this.#chosenOffersChangeHandler);
+
+    this.#setDatepicker();
   }
 
   get template() {
     return createEditPointTemplate(this._state, this._state.eventDestination, this._state.availableOffers, this.#isNewPoint, this.#allOffers, this.#destinations);
   }
 
+  reset(event, offers, destinations) {
+    this.updateElement(EditEventFormView.parseEventToState(event, offers, destinations));
+  }
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
+  #setDateFromPicker() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: eventEditDateFormat,
+        defaultDate: this._state.dateFrom,
+        enableTime: true,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+  }
+
+  #setDateToPicker() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: eventEditDateFormat,
+        defaultDate: this._state.dateTo,
+        enableTime: true,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
+  }
+
+  #setDatepicker() {
+    this.#setDateFromPicker();
+    this.#setDateToPicker();
+  }
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(EditEventFormView.parseStateToEvent(this._state));
   };
 
   #rollupButtonClickHandler = (evt) => {
@@ -193,7 +268,7 @@ export default class EditEventFormView extends AbstractStatefulView {
     const availableOffers = this.#allOffers.find((item) => item.type === type).offers;
 
     // Сохранение изначальных офферов при смене типа точки маршрута (по приколу)
-    const offers = type === this.#sourceType ? this.#sourceOffers : [];
+    const offers = type === this.#sourcedType ? this.#sourcedOffers : [];
 
     if (evt.target.className.includes('event__type-input')) {
       this.updateElement({type, availableOffers, offers});
@@ -203,7 +278,17 @@ export default class EditEventFormView extends AbstractStatefulView {
   #eventDestinationChangeHandler = (evt) => {
     const {value} = evt.target;
     const newDestination = this.#destinations.find((destination) => destination.name === value);
-    this.updateElement({eventDestination: newDestination});
+    this.updateElement({eventDestination: newDestination, destination: newDestination.id});
   };
 
+  #chosenOffersChangeHandler = (evt) => {
+    const {offer} = evt.target.dataset;
+    const offers = this._state.offers;
+    if (offers.includes(+offer)) {
+      offers.splice(offers.indexOf(+offer), 1);
+    } else {
+      offers.push(+offer);
+      offers.sort((a, b) => a - b);
+    }
+  };
 }

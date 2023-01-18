@@ -15,34 +15,37 @@ export default class EventPresenter {
 
   #event = null;
   #destinations = null;
+  #destination = null;
   #allOffers = null;
   #availableOffers = null;
   #offers = null;
 
   #handleModeChange = null;
+  #handleDataChange = null;
   #mode = Mode.DEFAULT;
 
-  constructor(tripsListComponent, handleModeChange) {
-    this.#tripsListComponent = tripsListComponent;
-    this.#handleModeChange = handleModeChange;
+  constructor({container, onModeChange, onDataChange}) {
+    this.#tripsListComponent = container;
+    this.#handleModeChange = onModeChange;
+    this.#handleDataChange = onDataChange;
   }
 
   init(event, destinations, offersByType) {
+    const prevEventComponent = this.#eventComponent;
+
     this.#event = event;
     this.#allOffers = offersByType;
     this.#destinations = destinations;
+    this.#destination = this.#destinations.find((item) => this.#event.destination === item.id);
     this.#availableOffers = offersByType.find((item) => item.type === this.#event.type).offers;
     this.#offers = this.#availableOffers.filter((offer) => this.#event.offers.includes(offer.id));
 
     this.#eventComponent = new EventView(
       {
         event: this.#event,
-        destination: this.#destinations.find((item) => this.#event.destination === item.id),
+        destination: this.#destination,
         offers: this.#offers,
-        onRollupButtonClick: () => {
-          this.#replaceCardToForm();
-          document.addEventListener('keydown', this.#escKeyDownHandler);
-        }
+        onRollupButtonClick: this.#openEventEditForm,
       }
     );
 
@@ -57,13 +60,25 @@ export default class EventPresenter {
       }
     );
 
-    render(this.#eventComponent, this.#tripsListComponent.element);
+    if (prevEventComponent === null) {
+      render(this.#eventComponent, this.#tripsListComponent.element);
+      return;
+    }
+
+    replace(this.#eventComponent, prevEventComponent);
+    remove(prevEventComponent);
   }
 
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToCard();
+      this.#eventEditComponent.reset(this.#event);
     }
+  };
+
+  #openEventEditForm = () => {
+    this.#replaceCardToForm();
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #replaceCardToForm = () => {
@@ -79,6 +94,7 @@ export default class EventPresenter {
 
   #closeEventEditForm = () => {
     this.#replaceFormToCard();
+    this.#eventEditComponent.reset(this.#event, this.#allOffers, this.#destinations);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
@@ -89,8 +105,9 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = () => {
+  #handleFormSubmit = (event) => {
     this.#replaceFormToCard();
+    this.#handleDataChange(event);
   };
 
   destroy() {

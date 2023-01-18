@@ -1,5 +1,5 @@
 import {render} from '../framework/render';
-import {sortByDate, sortByPrice} from '../utils/event';
+import {sortByDate, sortByPrice, updateItem} from '../utils/event';
 import {SortType} from '../const';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
@@ -27,8 +27,17 @@ export default class TripsPresenter {
     this.#renderEventsList();
   }
 
+  #handleEventChange = (update) => {
+    this.#events = updateItem(this.#events, update);
+    this.#eventPresenterMap.get(update.id).init(update, this.#eventsModel.destinations, this.#eventsModel.offersByType);
+  };
+
   #renderEvent(event, destinations, offersByType) {
-    const eventPresenter = new EventPresenter(this.#tripsListComponent, this.#handleModeChange);
+    const eventPresenter = new EventPresenter({
+      container: this.#tripsListComponent,
+      onModeChange: this.#handleModeChange,
+      onDataChange: this.#handleEventChange
+    });
     eventPresenter.init(event, destinations, offersByType);
     this.#eventPresenterMap.set(event.id, eventPresenter);
   }

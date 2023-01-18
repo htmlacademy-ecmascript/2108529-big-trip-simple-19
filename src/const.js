@@ -8,4 +8,6 @@ const SortType = {
   PRICE: 'sort-price'
 };
 
-export {filterTypes, SortType};
+const eventEditDateFormat = 'd/m/y H:i';
+
+export {filterTypes, SortType, eventEditDateFormat};
