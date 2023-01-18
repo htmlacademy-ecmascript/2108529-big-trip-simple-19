@@ -1,6 +1,9 @@
 import dayjs from 'dayjs';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import {capitalizeWord} from '../utils/common';
+import flatpickr from 'flatpickr';
+import 'flatpickr/dist/flatpickr.min.css';
+import {eventEditDateFormat} from '../const';
 
 function createAvailableOffersTemplate(offers, availableOffers) {
 
@@ -128,12 +131,15 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
 }
 
 export default class EditEventFormView extends AbstractStatefulView {
+  #datepicker = null;
 
   #allOffers = null;
   #destinations = null;
   #isNewPoint = Boolean;
-  #handleFormSubmit = () => {};
-  #handleRollupButtonClick = () => {};
+  #handleFormSubmit = () => {
+  };
+  #handleRollupButtonClick = () => {
+  };
 
   #sourcedOffers = null;
   #sourcedType = null;
@@ -151,6 +157,15 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#sourcedType = event.type;
 
     this._restoreHandlers();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this.#datepicker) {
+      this.#datepicker.destroy();
+      this.#datepicker = null;
+    }
   }
 
   static parseEventToState(event, allOffers, destinations) {
@@ -184,6 +199,8 @@ export default class EditEventFormView extends AbstractStatefulView {
       .addEventListener('change', this.#eventDestinationChangeHandler);
     this.element.querySelector('.event__available-offers')
       .addEventListener('change', this.#chosenOffersChangeHandler);
+
+    this.#setDatepicker();
   }
 
   get template() {
@@ -192,6 +209,47 @@ export default class EditEventFormView extends AbstractStatefulView {
 
   reset(event, offers, destinations) {
     this.updateElement(EditEventFormView.parseEventToState(event, offers, destinations));
+  }
+
+  #dateFromChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateFrom: userDate,
+    });
+  };
+
+  #dateToChangeHandler = ([userDate]) => {
+    this.updateElement({
+      dateTo: userDate,
+    });
+  };
+
+  #setDateFromPicker() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-start-time-1'),
+      {
+        dateFormat: eventEditDateFormat,
+        defaultDate: this._state.dateFrom,
+        enableTime: true,
+        onChange: this.#dateFromChangeHandler,
+      },
+    );
+  }
+
+  #setDateToPicker() {
+    this.#datepicker = flatpickr(
+      this.element.querySelector('#event-end-time-1'),
+      {
+        dateFormat: eventEditDateFormat,
+        defaultDate: this._state.dateTo,
+        enableTime: true,
+        onChange: this.#dateToChangeHandler,
+      },
+    );
+  }
+
+  #setDatepicker() {
+    this.#setDateFromPicker();
+    this.#setDateToPicker();
   }
 
   #formSubmitHandler = (evt) => {
@@ -233,5 +291,4 @@ export default class EditEventFormView extends AbstractStatefulView {
       offers.sort((a, b) => a - b);
     }
   };
-
 }

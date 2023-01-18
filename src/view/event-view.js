@@ -64,6 +64,6 @@ export default class EventView extends AbstractView {
 
   #rollupButtonClickHandler = () => {
     this.#handleRollupButtonClick();
-  }
+  };
 
 }
