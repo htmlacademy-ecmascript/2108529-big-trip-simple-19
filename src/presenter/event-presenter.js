@@ -31,14 +31,14 @@ export default class EventPresenter {
   }
 
   init(event, destinations, offersByType) {
+    const prevEventComponent = this.#eventComponent;
+
     this.#event = event;
     this.#allOffers = offersByType;
     this.#destinations = destinations;
     this.#destination = this.#destinations.find((item) => this.#event.destination === item.id);
     this.#availableOffers = offersByType.find((item) => item.type === this.#event.type).offers;
     this.#offers = this.#availableOffers.filter((offer) => this.#event.offers.includes(offer.id));
-
-    console.log(this.#event);
 
     this.#eventComponent = new EventView(
       {
@@ -63,7 +63,13 @@ export default class EventPresenter {
       }
     );
 
-    render(this.#eventComponent, this.#tripsListComponent.element);
+    if (prevEventComponent === null) {
+      render(this.#eventComponent, this.#tripsListComponent.element);
+      return;
+    }
+
+    replace(this.#eventComponent, prevEventComponent);
+    remove(prevEventComponent);
   }
 
   resetView = () => {
