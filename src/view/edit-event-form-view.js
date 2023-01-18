@@ -162,6 +162,16 @@ export default class EditEventFormView extends AbstractStatefulView {
     };
   }
 
+  static parseStateToEvent(state) {
+
+    const event = {...state};
+
+    delete event.eventDestination;
+    delete event.availableOffers;
+
+    return event;
+  }
+
   _restoreHandlers() {
     this.element.querySelector('form')
       .addEventListener('submit', this.#formSubmitHandler);
@@ -179,7 +189,7 @@ export default class EditEventFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(EditEventFormView.parseStateToEvent(this._state));
   };
 
   #rollupButtonClickHandler = (evt) => {
@@ -203,7 +213,7 @@ export default class EditEventFormView extends AbstractStatefulView {
   #eventDestinationChangeHandler = (evt) => {
     const {value} = evt.target;
     const newDestination = this.#destinations.find((destination) => destination.name === value);
-    this.updateElement({eventDestination: newDestination});
+    this.updateElement({eventDestination: newDestination, destination: newDestination.id});
   };
 
 }
