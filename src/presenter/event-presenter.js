@@ -45,10 +45,7 @@ export default class EventPresenter {
         event: this.#event,
         destination: this.#destination,
         offers: this.#offers,
-        onRollupButtonClick: () => {
-          this.#replaceCardToForm();
-          document.addEventListener('keydown', this.#escKeyDownHandler);
-        }
+        onRollupButtonClick: this.#openEventEditForm,
       }
     );
 
@@ -75,7 +72,13 @@ export default class EventPresenter {
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToCard();
+      this.#eventEditComponent.reset(this.#event);
     }
+  };
+
+  #openEventEditForm = () => {
+    this.#replaceCardToForm();
+    document.addEventListener('keydown', this.#escKeyDownHandler);
   };
 
   #replaceCardToForm = () => {
@@ -91,6 +94,7 @@ export default class EventPresenter {
 
   #closeEventEditForm = () => {
     this.#replaceFormToCard();
+    this.#eventEditComponent.reset(this.#event, this.#allOffers, this.#destinations);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
@@ -98,6 +102,7 @@ export default class EventPresenter {
     if (evt.key === 'Escape' || evt.key === 'Esc') {
       evt.preventDefault();
       this.#closeEventEditForm();
+      // this.#eventEditComponent.reset(this.#event);
     }
   };
 

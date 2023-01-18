@@ -128,14 +128,15 @@ function createEditPointTemplate(event, destination, availableOffers, isNewPoint
 }
 
 export default class EditEventFormView extends AbstractStatefulView {
+
   #allOffers = null;
   #destinations = null;
   #isNewPoint = Boolean;
   #handleFormSubmit = () => {};
   #handleRollupButtonClick = () => {};
 
-  #sourceOffers = null;
-  #sourceType = null;
+  #sourcedOffers = null;
+  #sourcedType = null;
 
   constructor({event, destinations, allOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
@@ -146,8 +147,8 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#handleRollupButtonClick = onRollupButtonClick;
     this._setState(EditEventFormView.parseEventToState(event, this.#allOffers, this.#destinations));
 
-    this.#sourceOffers = this._state.offers;
-    this.#sourceType = event.type;
+    this.#sourcedOffers = this._state.offers;
+    this.#sourcedType = event.type;
 
     this._restoreHandlers();
   }
@@ -189,6 +190,10 @@ export default class EditEventFormView extends AbstractStatefulView {
     return createEditPointTemplate(this._state, this._state.eventDestination, this._state.availableOffers, this.#isNewPoint, this.#allOffers, this.#destinations);
   }
 
+  reset(event, offers, destinations) {
+    this.updateElement(EditEventFormView.parseEventToState(event, offers, destinations));
+  }
+
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit(EditEventFormView.parseStateToEvent(this._state));
@@ -205,7 +210,7 @@ export default class EditEventFormView extends AbstractStatefulView {
     const availableOffers = this.#allOffers.find((item) => item.type === type).offers;
 
     // Сохранение изначальных офферов при смене типа точки маршрута (по приколу)
-    const offers = type === this.#sourceType ? this.#sourceOffers : [];
+    const offers = type === this.#sourcedType ? this.#sourcedOffers : [];
 
     if (evt.target.className.includes('event__type-input')) {
       this.updateElement({type, availableOffers, offers});
