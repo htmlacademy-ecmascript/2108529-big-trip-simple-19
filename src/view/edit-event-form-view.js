@@ -5,7 +5,7 @@ import {capitalizeWord} from '../utils/common';
 function createAvailableOffersTemplate(offers, availableOffers) {
 
   const availableOffersElements = availableOffers.map((offer) => `<div class="event__offer-selector">
-                         <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
+                         <input data-offer=${offer.id} class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
                          <label class="event__offer-label" for="event-offer-${offer.id}"}>
                            <span class="event__offer-title">${offer.title}</span>
                            +€&nbsp;
@@ -181,6 +181,8 @@ export default class EditEventFormView extends AbstractStatefulView {
       .addEventListener('change', this.#eventTypeChangeHandler);
     this.element.querySelector('.event-destination-select')
       .addEventListener('change', this.#eventDestinationChangeHandler);
+    this.element.querySelector('.event__available-offers')
+      .addEventListener('change', this.#chosenOffersChangeHandler);
   }
 
   get template() {
@@ -214,6 +216,17 @@ export default class EditEventFormView extends AbstractStatefulView {
     const {value} = evt.target;
     const newDestination = this.#destinations.find((destination) => destination.name === value);
     this.updateElement({eventDestination: newDestination, destination: newDestination.id});
+  };
+
+  #chosenOffersChangeHandler = (evt) => {
+    const {offer} = evt.target.dataset;
+    const offers = this._state.offers;
+    if (offers.includes(+offer)) {
+      offers.splice(offers.indexOf(+offer), 1);
+    } else {
+      offers.push(+offer);
+      offers.sort((a, b) => a - b);
+    }
   };
 
 }
