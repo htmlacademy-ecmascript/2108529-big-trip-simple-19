@@ -18,7 +18,7 @@ export default class EventsModel extends Observable {
     return this.#offersByType;
   }
 
-  updateTask(updateType, update) {
+  updateEvent(updateType, update) {
     const index = this.#events.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
@@ -27,13 +27,13 @@ export default class EventsModel extends Observable {
 
     this.#events = this.#events.map((event) => event.id === update.id ? update : event);
 
-    // this._notify(updateType, update);
+    this._notify(updateType, update);
   }
 
   addEvent(updateType, update) {
     this.#events = [update, ...this.#events];
 
-    // this._notify(updateType, update);
+    this._notify(updateType, update);
   }
 
   deleteEvent(updateType, update) {
@@ -45,7 +45,7 @@ export default class EventsModel extends Observable {
 
     this.#events.splice(index, 1);
 
-    // this._notify(updateType);
+    this._notify(updateType);
   }
 
 }

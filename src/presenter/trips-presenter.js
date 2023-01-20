@@ -1,6 +1,6 @@
 import {render} from '../framework/render';
 import {sortByDate, sortByPrice} from '../utils/event';
-import {SortType} from '../const';
+import {SortType, UpdateType, UserAction} from '../const.js';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventPresenter from './event-presenter';
@@ -22,7 +22,7 @@ export default class TripsPresenter {
     this.#tripsListContainer = tripsListContainer;
     this.#eventsModel = eventsModel;
 
-    // this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#eventsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
@@ -30,7 +30,7 @@ export default class TripsPresenter {
   }
 
   get events() {
-    switch(this.#currentSortType) {
+    switch (this.#currentSortType) {
       case SortType.PRICE:
         return [...this.#eventsModel.events].sort(sortByPrice);
       default:
@@ -39,12 +39,37 @@ export default class TripsPresenter {
   }
 
   #handleViewAction = (actionType, updateType, update) => {
-    console.log(actionType, updateType, update);
+    switch (actionType) {
+      case UserAction.UPDATE_EVENT:
+        this.#eventsModel.updateEvent(updateType, update);
+        break;
+      case UserAction.ADD_EVENT:
+        this.#eventsModel.addEvent(updateType, update);
+        break;
+      case UserAction.DELETE_EVENT:
+        this.#eventsModel.deleteEvent(updateType, update);
+        break;
+    }
   };
 
-  // #handleModelEvent = (updateType, data) => {
-  //   console.log(updateType, data)
-  // }
+  #handleModelEvent = (updateType, data) => {
+
+    switch (updateType) {
+      case UpdateType.PATCH:
+        this.#eventPresenterMap.get(data.id).init(data, this.#eventsModel.destinations, this.#eventsModel.offersByType);
+        break;
+      case UpdateType.MINOR:
+        this.#clearEventsList();
+        this.#renderEventsList();
+        break;
+      case UpdateType.MAJOR:
+        this.#clearEventsList();
+        this.#renderEventsList();
+        // будет создан презентер фильтров, тут его будем инициализировать
+        break;
+    }
+
+  };
 
   #renderEvent(event, destinations, offersByType) {
     const eventPresenter = new EventPresenter({

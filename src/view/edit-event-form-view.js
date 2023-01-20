@@ -141,11 +141,12 @@ export default class EditEventFormView extends AbstractStatefulView {
   #handleRollupButtonClick = () => {
   };
 
-  #sourcedOffers = null;
-  #sourcedType = null;
+  #sourcedEvent = null;
 
   constructor({event, destinations, allOffers, isNewPoint, onFormSubmit, onRollupButtonClick}) {
     super();
+    this.#sourcedEvent = event;
+
     this.#destinations = destinations;
     this.#allOffers = allOffers;
     this.#isNewPoint = isNewPoint;
@@ -153,8 +154,8 @@ export default class EditEventFormView extends AbstractStatefulView {
     this.#handleRollupButtonClick = onRollupButtonClick;
     this._setState(EditEventFormView.parseEventToState(event, this.#allOffers, this.#destinations));
 
-    this.#sourcedOffers = this._state.offers;
-    this.#sourcedType = event.type;
+    // this.#sourcedOffers = this._state.offers;
+    // this.#sourcedType = event.type;
 
     this._restoreHandlers();
   }
@@ -254,7 +255,7 @@ export default class EditEventFormView extends AbstractStatefulView {
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(EditEventFormView.parseStateToEvent(this._state));
+    this.#handleFormSubmit(EditEventFormView.parseStateToEvent(this._state), this.#sourcedEvent);
   };
 
   #rollupButtonClickHandler = (evt) => {
@@ -268,7 +269,7 @@ export default class EditEventFormView extends AbstractStatefulView {
     const availableOffers = this.#allOffers.find((item) => item.type === type).offers;
 
     // Сохранение изначальных офферов при смене типа точки маршрута (по приколу)
-    const offers = type === this.#sourcedType ? this.#sourcedOffers : [];
+    const offers = type === this.#sourcedEvent.type ? this.#sourcedEvent.offers : [];
 
     if (evt.target.className.includes('event__type-input')) {
       this.updateElement({type, availableOffers, offers});

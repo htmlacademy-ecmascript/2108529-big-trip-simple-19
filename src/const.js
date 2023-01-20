@@ -19,6 +19,7 @@ const UserAction = {
 const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
+  MAJOR: 'MAJOR'
 };
 
 export {filterTypes, SortType, eventEditDateFormat, UserAction, UpdateType};
