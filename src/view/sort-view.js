@@ -44,7 +44,7 @@ export default class SortView extends AbstractView {
   }
 
   #sortTypeChangeHandler = (event) => {
-    this.#handleSortTypeChange(event);
+    this.#handleSortTypeChange(event.target.value);
   };
 
 

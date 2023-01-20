@@ -1,5 +1,5 @@
 import {render} from '../framework/render';
-import {sortByDate, sortByPrice, updateItem} from '../utils/event';
+import {sortByDate, sortByPrice} from '../utils/event';
 import {SortType} from '../const';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
@@ -14,8 +14,9 @@ export default class TripsPresenter {
   #sortComponent = null;
   #noEventsComponent = new NoEventsView();
 
-  #events = [];
   #eventPresenterMap = new Map();
+
+  #currentSortType = SortType.DAY;
 
   constructor(tripsListContainer, eventsModel) {
     this.#tripsListContainer = tripsListContainer;
@@ -23,16 +24,20 @@ export default class TripsPresenter {
   }
 
   init() {
-    this.#events = [...this.#eventsModel.events.sort(sortByDate)];
     this.#renderEventsList();
   }
 
-  get tasks() {
-    return this.#eventsModel.events;
+  get events() {
+    switch(this.#currentSortType) {
+      case SortType.PRICE:
+        return [...this.#eventsModel.events].sort(sortByPrice);
+      default:
+        return [...this.#eventsModel.events].sort(sortByDate);
+    }
   }
 
   #handleEventChange = (update) => {
-    this.#events = updateItem(this.#events, update);
+
     this.#eventPresenterMap.get(update.id).init(update, this.#eventsModel.destinations, this.#eventsModel.offersByType);
   };
 
@@ -50,20 +55,9 @@ export default class TripsPresenter {
     this.#eventPresenterMap.forEach((presenter) => presenter.resetView());
   };
 
-  #handleSortTypeChange = (event) => {
-    this.#sortEvents(event.target.value);
+  #handleSortTypeChange = (sortType) => {
+    this.#currentSortType = sortType;
     this.#rerenderEventsList();
-  };
-
-  #sortEvents = (sortType) => {
-    switch (sortType) {
-      case SortType.DAY:
-        this.#events.sort(sortByDate);
-        break;
-      case SortType.PRICE:
-        this.#events.sort(sortByPrice);
-        break;
-    }
   };
 
   #renderSort() {
@@ -77,15 +71,18 @@ export default class TripsPresenter {
     render(this.#noEventsComponent, this.#tripsListContainer);
   }
 
+  #renderEvents() {
+    this.events.forEach((event) =>
+      this.#renderEvent(event, this.#eventsModel.destinations, this.#eventsModel.offersByType));
+  }
+
   #renderEventsList() {
-    if (this.#events.length) {
+    if (this.events.length) {
       if (!this.#sortComponent) {
         this.#renderSort();
       }
       render(this.#tripsListComponent, this.#tripsListContainer);
-      for (let i = 0; i < this.#events.length; i++) {
-        this.#renderEvent(this.#events[i], this.#eventsModel.destinations, this.#eventsModel.offersByType);
-      }
+      this.#renderEvents();
     } else {
       this.#renderNoEvents();
     }

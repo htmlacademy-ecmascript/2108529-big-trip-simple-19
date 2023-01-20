@@ -19,4 +19,8 @@ function capitalizeWord(word) {
   return word[0].toUpperCase() + word.slice(1);
 }
 
-export {getRandomArrayElement, getRandomAmountOfRandomArrayElements, capitalizeWord};
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
+export {getRandomArrayElement, getRandomAmountOfRandomArrayElements, capitalizeWord, updateItem};
