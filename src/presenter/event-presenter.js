@@ -1,6 +1,7 @@
 import EventView from '../view/event-view';
 import EditEventFormView from '../view/edit-event-form-view';
 import {render, replace, remove} from '../framework/render';
+import {UserAction, UpdateType} from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -107,7 +108,11 @@ export default class EventPresenter {
 
   #handleFormSubmit = (event) => {
     this.#replaceFormToCard();
-    this.#handleDataChange(event);
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      UpdateType.MINOR,
+      event
+    );
   };
 
   destroy() {

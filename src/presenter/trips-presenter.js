@@ -21,6 +21,8 @@ export default class TripsPresenter {
   constructor(tripsListContainer, eventsModel) {
     this.#tripsListContainer = tripsListContainer;
     this.#eventsModel = eventsModel;
+
+    // this.#eventsModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
@@ -36,16 +38,19 @@ export default class TripsPresenter {
     }
   }
 
-  #handleEventChange = (update) => {
-
-    this.#eventPresenterMap.get(update.id).init(update, this.#eventsModel.destinations, this.#eventsModel.offersByType);
+  #handleViewAction = (actionType, updateType, update) => {
+    console.log(actionType, updateType, update);
   };
+
+  // #handleModelEvent = (updateType, data) => {
+  //   console.log(updateType, data)
+  // }
 
   #renderEvent(event, destinations, offersByType) {
     const eventPresenter = new EventPresenter({
       container: this.#tripsListComponent,
       onModeChange: this.#handleModeChange,
-      onDataChange: this.#handleEventChange
+      onDataChange: this.#handleViewAction
     });
     eventPresenter.init(event, destinations, offersByType);
     this.#eventPresenterMap.set(event.id, eventPresenter);
