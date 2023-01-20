@@ -27,6 +27,10 @@ export default class TripsPresenter {
     this.#renderEventsList();
   }
 
+  get tasks() {
+    return this.#eventsModel.events;
+  }
+
   #handleEventChange = (update) => {
     this.#events = updateItem(this.#events, update);
     this.#eventPresenterMap.get(update.id).init(update, this.#eventsModel.destinations, this.#eventsModel.offersByType);
