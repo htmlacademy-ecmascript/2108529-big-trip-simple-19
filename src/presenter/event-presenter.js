@@ -1,6 +1,8 @@
 import EventView from '../view/event-view';
-import EditEventFormView from '../view/edit-event-form-view';
+import EditEventView from '../view/edit-event-view';
 import {render, replace, remove} from '../framework/render';
+import {UserAction, UpdateType} from '../const.js';
+import {humanizeEventDate} from '../utils/event';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -49,14 +51,14 @@ export default class EventPresenter {
       }
     );
 
-    this.#eventEditComponent = new EditEventFormView(
+    this.#eventEditComponent = new EditEventView(
       {
         event: this.#event,
         destinations: this.#destinations,
         allOffers: this.#allOffers,
-        isNewPoint: false,
         onFormSubmit: this.#handleFormSubmit,
-        onRollupButtonClick: this.#closeEventEditForm
+        onRollupButtonClick: this.#closeEventEditForm,
+        onDeleteButtonClick: this.#handleDeleteClick
       }
     );
 
@@ -72,7 +74,7 @@ export default class EventPresenter {
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToCard();
-      this.#eventEditComponent.reset(this.#event);
+      this.#eventEditComponent.reset(this.#event, this.#allOffers, this.#destinations);
     }
   };
 
@@ -105,9 +107,43 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = (event) => {
+  #handleFormSubmit = (event, sourcedEvent) => {
     this.#replaceFormToCard();
-    this.#handleDataChange(event);
+    /*
+* изменяются 4 вещи:
+* 1. тип точки - ничего не меняется, чисто patch
+* 2. локация - ничего не меняется, чисто patch
+* 3. даты поездки - могут меняться фильтры и положение события в списке по сортировке
+* 4. цена - может меняться положение точки в списке при сортировке
+* поэтому 1 и 2 - patch
+* 3 - major
+* 4 - minor
+* значит нужно определять, что было изменено, чем новый стейт в момент сохранения отличается от старого
+* */
+
+    let updateType;
+    if (humanizeEventDate(event.dateFrom) !== humanizeEventDate(sourcedEvent.dateFrom)) {
+      updateType = UpdateType.MAJOR;
+    } else if (event.basePrice !== sourcedEvent.basePrice) {
+      updateType = UpdateType.MINOR;
+    } else {
+      updateType = UpdateType.PATCH;
+    }
+
+    this.#handleDataChange(
+      UserAction.UPDATE_EVENT,
+      updateType,
+      event
+    );
+  };
+
+  #handleDeleteClick = (event) => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MAJOR,
+      event
+    );
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   destroy() {

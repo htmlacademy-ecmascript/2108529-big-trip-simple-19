@@ -1,9 +1,9 @@
 import dayjs from 'dayjs';
-import {filterTypes} from '../const';
+import {FilterType} from '../const';
 
 const filter = {
-  [filterTypes.ALL]: (events) => events,
-  [filterTypes.FUTURE]: (events) => events.filter((event) => dayjs(event.dateFrom).isAfter(dayjs()))
+  [FilterType.ALL]: (events) => events,
+  [FilterType.FUTURE]: (events) => events.filter((event) => dayjs(event.dateFrom).isAfter(dayjs()))
 };
 
 export {filter};

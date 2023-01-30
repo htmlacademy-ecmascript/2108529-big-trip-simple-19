@@ -1,4 +1,4 @@
-const filterTypes = {
+const FilterType = {
   ALL: 'everything',
   FUTURE: 'future'
 };
@@ -10,4 +10,16 @@ const SortType = {
 
 const eventEditDateFormat = 'd/m/y H:i';
 
-export {filterTypes, SortType, eventEditDateFormat};
+const UserAction = {
+  UPDATE_EVENT: 'UPDATE_EVENT',
+  ADD_EVENT: 'ADD_EVENT',
+  DELETE_EVENT: 'DELETE_EVENT'
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR'
+};
+
+export {FilterType, SortType, eventEditDateFormat, UserAction, UpdateType};
