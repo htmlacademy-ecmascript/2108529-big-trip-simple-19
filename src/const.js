@@ -1,4 +1,4 @@
-const filterTypes = {
+const FilterType = {
   ALL: 'everything',
   FUTURE: 'future'
 };
@@ -22,4 +22,4 @@ const UpdateType = {
   MAJOR: 'MAJOR'
 };
 
-export {filterTypes, SortType, eventEditDateFormat, UserAction, UpdateType};
+export {FilterType, SortType, eventEditDateFormat, UserAction, UpdateType};

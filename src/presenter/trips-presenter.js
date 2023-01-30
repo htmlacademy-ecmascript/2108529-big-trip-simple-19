@@ -1,28 +1,41 @@
-import {render} from '../framework/render';
+import {render, remove} from '../framework/render';
 import {sortByDate, sortByPrice} from '../utils/event';
-import {SortType, UpdateType, UserAction} from '../const.js';
+import {SortType, UpdateType, UserAction, FilterType} from '../const.js';
 import SortView from '../view/sort-view';
 import TripsListView from '../view/trips-list-view';
 import EventPresenter from './event-presenter';
 import NoEventsView from '../view/no-events-view';
+import {filter} from '../utils/filter';
+import NewEventPresenter from './new-event-presenter';
 
 export default class TripsPresenter {
   #tripsListContainer = null;
   #eventsModel = null;
+  #filterModel = null;
 
   #tripsListComponent = new TripsListView();
   #sortComponent = null;
-  #noEventsComponent = new NoEventsView();
+  #noEventsComponent = null;
 
   #eventPresenterMap = new Map();
+  #newEventPresenter = null;
 
   #currentSortType = SortType.DAY;
+  #filterType = FilterType.ALL;
 
-  constructor(tripsListContainer, eventsModel) {
-    this.#tripsListContainer = tripsListContainer;
+  constructor({tripEventsContainer, eventsModel, filterModel, onNewEventDestroy}) {
+    this.#tripsListContainer = tripEventsContainer;
     this.#eventsModel = eventsModel;
+    this.#filterModel = filterModel;
+
+    this.#newEventPresenter = new NewEventPresenter({
+      container: this.#tripsListComponent,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewEventDestroy
+    });
 
     this.#eventsModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init() {
@@ -30,12 +43,25 @@ export default class TripsPresenter {
   }
 
   get events() {
+    this.#filterType = this.#filterModel.filter;
+    const events = this.#eventsModel.events;
+    const filteredEvents = filter[this.#filterType](events);
+
     switch (this.#currentSortType) {
       case SortType.PRICE:
-        return [...this.#eventsModel.events].sort(sortByPrice);
+        return filteredEvents.sort(sortByPrice);
       default:
-        return [...this.#eventsModel.events].sort(sortByDate);
+        return filteredEvents.sort(sortByDate);
     }
+  }
+
+  createEvent() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.ALL);
+    this.#newEventPresenter.init({
+      destinations: this.#eventsModel.destinations,
+      offersByType: this.#eventsModel.offersByType,
+    });
   }
 
   #handleViewAction = (actionType, updateType, update) => {
@@ -65,7 +91,6 @@ export default class TripsPresenter {
       case UpdateType.MAJOR:
         this.#clearEventsList();
         this.#renderEventsList();
-        // будет создан презентер фильтров, тут его будем инициализировать
         break;
     }
 
@@ -82,6 +107,7 @@ export default class TripsPresenter {
   }
 
   #handleModeChange = () => {
+    this.#newEventPresenter.destroy();
     this.#eventPresenterMap.forEach((presenter) => presenter.resetView());
   };
 
@@ -98,6 +124,10 @@ export default class TripsPresenter {
   }
 
   #renderNoEvents() {
+    this.#noEventsComponent = new NoEventsView({
+      filterType: this.#filterType
+    });
+
     render(this.#noEventsComponent, this.#tripsListContainer);
   }
 
@@ -119,8 +149,12 @@ export default class TripsPresenter {
   }
 
   #clearEventsList() {
+    this.#newEventPresenter.destroy();
     this.#eventPresenterMap.forEach((presenter) => presenter.destroy());
     this.#eventPresenterMap.clear();
+    if (this.#noEventsComponent) {
+      remove(this.#noEventsComponent);
+    }
   }
 
   #rerenderEventsList() {

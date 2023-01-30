@@ -1,8 +1,7 @@
 import EventView from '../view/event-view';
-import EditEventFormView from '../view/edit-event-form-view';
+import EditEventView from '../view/edit-event-view';
 import {render, replace, remove} from '../framework/render';
 import {UserAction, UpdateType} from '../const.js';
-import dayjs from 'dayjs';
 import {humanizeEventDate} from '../utils/event';
 
 const Mode = {
@@ -52,14 +51,14 @@ export default class EventPresenter {
       }
     );
 
-    this.#eventEditComponent = new EditEventFormView(
+    this.#eventEditComponent = new EditEventView(
       {
         event: this.#event,
         destinations: this.#destinations,
         allOffers: this.#allOffers,
-        isNewPoint: false,
         onFormSubmit: this.#handleFormSubmit,
-        onRollupButtonClick: this.#closeEventEditForm
+        onRollupButtonClick: this.#closeEventEditForm,
+        onDeleteButtonClick: this.#handleDeleteClick
       }
     );
 
@@ -75,7 +74,7 @@ export default class EventPresenter {
   resetView = () => {
     if (this.#mode !== Mode.DEFAULT) {
       this.#replaceFormToCard();
-      this.#eventEditComponent.reset(this.#event);
+      this.#eventEditComponent.reset(this.#event, this.#allOffers, this.#destinations);
     }
   };
 
@@ -136,6 +135,15 @@ export default class EventPresenter {
       updateType,
       event
     );
+  };
+
+  #handleDeleteClick = (event) => {
+    this.#handleDataChange(
+      UserAction.DELETE_EVENT,
+      UpdateType.MAJOR,
+      event
+    );
+    document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 
   destroy() {
