@@ -2,7 +2,7 @@ import {render, remove} from '../framework/render';
 import {sortByDate, sortByPrice} from '../utils/event';
 import {SortType, UpdateType, UserAction, FilterType} from '../const.js';
 import SortView from '../view/sort-view';
-import TripsListView from '../view/trips-list-view';
+import EventsListView from '../view/events-list-view';
 import EventPresenter from './event-presenter';
 import NoEventsView from '../view/no-events-view';
 import {filter} from '../utils/filter';
@@ -15,12 +15,12 @@ const TimeLimit = {
   UPPER_LIMIT: 1000,
 };
 
-export default class TripsPresenter {
+export default class EventsPresenter {
   #tripsListContainer = null;
   #eventsModel = null;
   #filterModel = null;
 
-  #tripsListComponent = new TripsListView();
+  #tripsListComponent = new EventsListView();
   #sortComponent = null;
   #noEventsComponent = null;
   #loadingComponent = new LoadingView();
