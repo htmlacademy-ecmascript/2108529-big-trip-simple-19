@@ -2,9 +2,19 @@ import {mockEvents, destinations, offersByType} from '../mock/events';
 import Observable from '../framework/observable';
 
 export default class EventsModel extends Observable {
+  #pointsApiService = null;
+
   #events = mockEvents;
   #destinations = destinations;
   #offersByType = offersByType;
+
+  constructor({pointsApiService}) {
+    super();
+    this.#pointsApiService = pointsApiService;
+
+    this.#pointsApiService.points.then((response) => console.log(response));
+
+  }
 
   get events() {
     return this.#events;
