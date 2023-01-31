@@ -67,7 +67,7 @@ function createDestinationNameOptionsTemplate(destinations, event) {
   const uniqueDestinations = Array.from(new Set(destinations));
 
   return uniqueDestinations.map((destination) => (
-    `<option value=${destination.name} ${destination.id === event.eventDestination.id ? 'selected' : ''}>${capitalizeWord(destination.name)}</option>`)).join('');
+    `<option value=${destination.name.split(' ').join('')} ${destination.id === event.eventDestination.id ? 'selected' : ''}>${capitalizeWord(destination.name)}</option>`)).join('');
 }
 
 function createEditPointTemplate(event, destination, availableOffers, allOffers, allDestinations, isNewPoint) {
@@ -222,7 +222,7 @@ export default class EditEventView extends AbstractStatefulView {
     this.element.querySelector('.event-destination-select')
       .addEventListener('change', this.#eventDestinationChangeHandler);
     this.element.querySelector('.event__available-offers')
-      .addEventListener('change', this.#chosenOffersChangeHandler);
+      ?.addEventListener('change', this.#chosenOffersChangeHandler);
     this.element.querySelector('.event__reset-btn')
       .addEventListener('click', this.#deleteClickHandler);
 
@@ -309,7 +309,7 @@ export default class EditEventView extends AbstractStatefulView {
 
   #eventDestinationChangeHandler = (evt) => {
     const {value} = evt.target;
-    const newDestination = this.#destinations.find((destination) => destination.name === value);
+    const newDestination = this.#destinations.find((destination) => destination.name.split(' ').join('') === value);
     this.updateElement({eventDestination: newDestination, destination: newDestination.id});
   };
 

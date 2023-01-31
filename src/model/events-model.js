@@ -18,12 +18,16 @@ export default class EventsModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#events = points.map(this.#adaptToClient);
+      console.log(this.#events);
 
       this.#destinations = await this.#pointsApiService.destinations;
+      console.log(this.#destinations);
+
       this.#offersByType = await this.#pointsApiService.offers;
     } catch (err) {
       this.#events = [];
     }
+
 
     this._notify(UpdateType.INIT);
   }
@@ -78,7 +82,6 @@ export default class EventsModel extends Observable {
     delete point['base_price'];
     delete point['date_from'];
     delete point['date_to'];
-
     return point;
   }
 
