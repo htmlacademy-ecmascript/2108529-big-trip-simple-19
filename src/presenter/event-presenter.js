@@ -109,17 +109,6 @@ export default class EventPresenter {
 
   #handleFormSubmit = (event, sourcedEvent) => {
     this.#replaceFormToCard();
-    /*
-* изменяются 4 вещи:
-* 1. тип точки - ничего не меняется, чисто patch
-* 2. локация - ничего не меняется, чисто patch
-* 3. даты поездки - могут меняться фильтры и положение события в списке по сортировке
-* 4. цена - может меняться положение точки в списке при сортировке
-* поэтому 1 и 2 - patch
-* 3 - major
-* 4 - minor
-* значит нужно определять, что было изменено, чем новый стейт в момент сохранения отличается от старого
-* */
 
     let updateType;
     if (humanizeEventDate(event.dateFrom) !== humanizeEventDate(sourcedEvent.dateFrom)) {

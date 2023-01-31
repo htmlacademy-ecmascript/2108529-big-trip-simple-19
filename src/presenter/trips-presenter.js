@@ -7,6 +7,7 @@ import EventPresenter from './event-presenter';
 import NoEventsView from '../view/no-events-view';
 import {filter} from '../utils/filter';
 import NewEventPresenter from './new-event-presenter';
+import LoadingView from '../view/loading-view';
 
 export default class TripsPresenter {
   #tripsListContainer = null;
@@ -16,12 +17,14 @@ export default class TripsPresenter {
   #tripsListComponent = new TripsListView();
   #sortComponent = null;
   #noEventsComponent = null;
+  #loadingComponent = new LoadingView();
 
   #eventPresenterMap = new Map();
   #newEventPresenter = null;
 
   #currentSortType = SortType.DAY;
   #filterType = FilterType.ALL;
+  #isLoading = true;
 
   constructor({tripEventsContainer, eventsModel, filterModel, onNewEventDestroy}) {
     this.#tripsListContainer = tripEventsContainer;
@@ -92,6 +95,11 @@ export default class TripsPresenter {
         this.#clearEventsList();
         this.#renderEventsList();
         break;
+      case UpdateType.INIT:
+        this.#isLoading = false;
+        remove(this.#loadingComponent);
+        this.#renderEventsList();
+        break;
     }
 
   };
@@ -131,12 +139,20 @@ export default class TripsPresenter {
     render(this.#noEventsComponent, this.#tripsListContainer);
   }
 
+  #renderLoading() {
+    render(this.#loadingComponent, this.#tripsListContainer);
+  }
+
   #renderEvents() {
     this.events.forEach((event) =>
       this.#renderEvent(event, this.#eventsModel.destinations, this.#eventsModel.offersByType));
   }
 
   #renderEventsList() {
+    if (this.#isLoading) {
+      return this.#renderLoading();
+    }
+
     if (this.events.length) {
       if (!this.#sortComponent) {
         this.#renderSort();
