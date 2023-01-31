@@ -21,6 +21,9 @@ export default class NewEventPresenter {
   }
 
   init({destinations, offersByType}) {
+    if (this.#eventEditComponent !== null) {
+      return;
+    }
 
     this.#destinations = destinations;
     this.#allOffers = offersByType;
@@ -54,12 +57,30 @@ export default class NewEventPresenter {
       UpdateType.MAJOR,
       {...event, id: nanoid()}
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {
     this.destroy();
   };
+
+  setSaving() {
+    this.#eventEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#eventEditComponent.shake(resetFormState);
+  }
 
   destroy() {
 

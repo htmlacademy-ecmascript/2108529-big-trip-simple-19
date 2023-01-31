@@ -34,6 +34,7 @@ export default class EventPresenter {
 
   init(event, destinations, offersByType) {
     const prevEventComponent = this.#eventComponent;
+    const prevEventEditComponent = this.#eventEditComponent;
 
     this.#event = event;
     this.#allOffers = offersByType;
@@ -67,6 +68,11 @@ export default class EventPresenter {
       return;
     }
 
+    if (this.#mode === Mode.EDITING) {
+      replace(this.#eventComponent, prevEventEditComponent);
+      this.#mode = Mode.DEFAULT;
+    }
+
     replace(this.#eventComponent, prevEventComponent);
     remove(prevEventComponent);
   }
@@ -77,6 +83,41 @@ export default class EventPresenter {
       this.#eventEditComponent.reset(this.#event, this.#allOffers, this.#destinations);
     }
   };
+
+  setSaving() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isSaving: true,
+      });
+    }
+  }
+
+  setDeleting() {
+    if (this.#mode === Mode.EDITING) {
+      this.#eventEditComponent.updateElement({
+        isDisabled: true,
+        isDeleting: true,
+      });
+    }
+  }
+
+  setAborting() {
+    if (this.#mode === Mode.DEFAULT) {
+      this.#eventComponent.shake();
+      return;
+    }
+
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#eventEditComponent.shake(resetFormState);
+  }
 
   #openEventEditForm = () => {
     this.#replaceCardToForm();
@@ -107,8 +148,7 @@ export default class EventPresenter {
     }
   };
 
-  #handleFormSubmit = (event, sourcedEvent) => {
-    this.#replaceFormToCard();
+  #handleFormSubmit = async (event, sourcedEvent) => {
 
     let updateType;
     if (humanizeEventDate(event.dateFrom) !== humanizeEventDate(sourcedEvent.dateFrom)) {
