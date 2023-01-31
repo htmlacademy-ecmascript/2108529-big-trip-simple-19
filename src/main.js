@@ -45,3 +45,4 @@ render(newEventButtonComponent, topContainer);
 
 filterPresenter.init();
 tripsPresenter.init();
+eventsModel.init();

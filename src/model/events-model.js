@@ -1,20 +1,28 @@
-import {mockEvents, destinations, offersByType} from '../mock/events';
 import Observable from '../framework/observable';
 
 export default class EventsModel extends Observable {
   #pointsApiService = null;
 
-  #events = mockEvents;
-  #destinations = destinations;
-  #offersByType = offersByType;
+  #events = [];
+  #destinations = [];
+  #offersByType = [];
 
   constructor({pointsApiService}) {
     super();
     this.#pointsApiService = pointsApiService;
 
-    // this.#pointsApiService.points.then((points) => console.log(points));
-    this.#pointsApiService.points.then((points) => console.log(points.map(this.#adaptToClient)));
+  }
 
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points;
+      this.#events = points.map(this.#adaptToClient);
+
+      this.#destinations = await this.#pointsApiService.destinations;
+      this.#offersByType = await this.#pointsApiService.offers;
+    } catch (err) {
+      this.#events = [];
+    }
   }
 
   get events() {
