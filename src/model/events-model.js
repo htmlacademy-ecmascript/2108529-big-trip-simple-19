@@ -21,8 +21,6 @@ export default class EventsModel extends Observable {
       console.log(this.#events);
 
       this.#destinations = await this.#pointsApiService.destinations;
-      console.log(this.#destinations);
-
       this.#offersByType = await this.#pointsApiService.offers;
     } catch (err) {
       this.#events = [];
@@ -44,16 +42,21 @@ export default class EventsModel extends Observable {
     return this.#offersByType;
   }
 
-  updateEvent(updateType, update) {
+  async updateEvent(updateType, update) {
     const index = this.#events.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t update unexisting event');
     }
 
-    this.#events = this.#events.map((event) => event.id === update.id ? update : event);
-
-    this._notify(updateType, update);
+    try {
+      const response = await this.#pointsApiService.updatePoint(update);
+      const updatedPoint = this.#adaptToClient(response);
+      this.#events = this.#events.map((event) => event.id === updatedPoint.id ? updatedPoint : event);
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t update task');
+    }
   }
 
   addEvent(updateType, update) {

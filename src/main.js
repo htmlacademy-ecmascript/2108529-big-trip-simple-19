@@ -41,8 +41,8 @@ function onNewEventButtonClick() {
   newEventButtonComponent.element.disabled = true;
 }
 
-render(newEventButtonComponent, topContainer);
-
 filterPresenter.init();
 tripsPresenter.init();
-eventsModel.init();
+eventsModel.init().finally(() => {
+  render(newEventButtonComponent, topContainer);
+});
