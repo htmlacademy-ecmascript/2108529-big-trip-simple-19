@@ -70,6 +70,18 @@ export default class NewEventPresenter {
     });
   }
 
+  setAborting() {
+    const resetFormState = () => {
+      this.#eventEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+
+    this.#eventEditComponent.shake(resetFormState);
+  }
+
   destroy() {
 
     if (this.#eventEditComponent === null) {

@@ -67,19 +67,31 @@ export default class TripsPresenter {
     });
   }
 
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
     switch (actionType) {
       case UserAction.UPDATE_EVENT:
         this.#eventPresenterMap.get(update.id).setSaving();
-        this.#eventsModel.updateEvent(updateType, update);
+        try {
+          await this.#eventsModel.updateEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenterMap.get(update.id).setAborting();
+        }
         break;
       case UserAction.ADD_EVENT:
         this.#newEventPresenter.setSaving();
-        this.#eventsModel.addEvent(updateType, update);
+        try {
+          await this.#eventsModel.addEvent(updateType, update);
+        } catch(err) {
+          this.#newEventPresenter.setAborting();
+        }
         break;
       case UserAction.DELETE_EVENT:
         this.#eventPresenterMap.get(update.id).setDeleting();
-        this.#eventsModel.deleteEvent(updateType, update);
+        try {
+          await this.#eventsModel.deleteEvent(updateType, update);
+        } catch(err) {
+          this.#eventPresenterMap.get(update.id).setAborting();
+        }
         break;
     }
   };
