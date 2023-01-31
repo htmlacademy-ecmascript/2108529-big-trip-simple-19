@@ -7,8 +7,8 @@ const Method = {
   DELETE: 'DELETE'
 };
 
-export default class PointsApiService extends ApiService {
-  get points() {
+export default class EventsApiService extends ApiService {
+  get events() {
     return this._load({url: 'points'})
       .then(ApiService.parseResponse);
   }
@@ -23,11 +23,11 @@ export default class PointsApiService extends ApiService {
       .then(ApiService.parseResponse);
   }
 
-  async updatePoint(point) {
+  async updateEvent(event) {
     const response = await this._load({
-      url: `points/${point.id}`,
+      url: `points/${event.id}`,
       method: Method.PUT,
-      body: JSON.stringify(this.#adaptToServer(point)),
+      body: JSON.stringify(this.#adaptToServer(event)),
       headers: new Headers({'Content-Type': 'application/json'}),
     });
 
@@ -55,16 +55,16 @@ export default class PointsApiService extends ApiService {
     return response;
   }
 
-  #adaptToServer(point) {
+  #adaptToServer(event) {
 
-    point['base_price'] = point.basePrice;
-    point['date_from'] = point.dateFrom;
-    point['date_to'] = point.dateTo;
+    event['base_price'] = event.basePrice;
+    event['date_from'] = event.dateFrom;
+    event['date_to'] = event.dateTo;
 
-    delete point.basePrice;
-    delete point.dateFrom;
-    delete point.dateTo;
+    delete event.basePrice;
+    delete event.dateFrom;
+    delete event.dateTo;
 
-    return point;
+    return event;
   }
 }

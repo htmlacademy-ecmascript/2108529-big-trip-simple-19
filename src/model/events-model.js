@@ -2,29 +2,28 @@ import Observable from '../framework/observable';
 import {UpdateType} from '../const.js';
 
 export default class EventsModel extends Observable {
-  #pointsApiService = null;
+  #eventsApiService = null;
 
   #events = [];
   #destinations = [];
   #offersByType = [];
 
-  constructor({pointsApiService}) {
+  constructor({eventsApiService}) {
     super();
-    this.#pointsApiService = pointsApiService;
+    this.#eventsApiService = eventsApiService;
 
   }
 
   async init() {
     try {
-      const points = await this.#pointsApiService.points;
-      this.#events = points.map(this.#adaptToClient);
+      const events = await this.#eventsApiService.events;
+      this.#events = events.map(this.#adaptToClient);
 
-      this.#destinations = await this.#pointsApiService.destinations;
-      this.#offersByType = await this.#pointsApiService.offers;
+      this.#destinations = await this.#eventsApiService.destinations;
+      this.#offersByType = await this.#eventsApiService.offers;
     } catch (err) {
       this.#events = [];
     }
-
 
     this._notify(UpdateType.INIT);
   }
@@ -49,10 +48,10 @@ export default class EventsModel extends Observable {
     }
 
     try {
-      const response = await this.#pointsApiService.updatePoint(update);
-      const updatedPoint = this.#adaptToClient(response);
-      this.#events = this.#events.map((event) => event.id === updatedPoint.id ? updatedPoint : event);
-      this._notify(updateType, updatedPoint);
+      const response = await this.#eventsApiService.updateEvent(update);
+      const updatedEvent = this.#adaptToClient(response);
+      this.#events = this.#events.map((event) => event.id === updatedEvent.id ? updatedEvent : event);
+      this._notify(updateType, updatedEvent);
     } catch (err) {
       throw new Error('Can\'t update task');
     }
@@ -60,7 +59,7 @@ export default class EventsModel extends Observable {
 
   async addEvent(updateType, update) {
     try {
-      const response = await this.#pointsApiService.createEvent(update);
+      const response = await this.#eventsApiService.createEvent(update);
       const newEvent = this.#adaptToClient(response);
       this.#events = [newEvent, ...this.#events];
       this._notify(updateType, newEvent);
@@ -77,7 +76,7 @@ export default class EventsModel extends Observable {
     }
 
     try {
-      await this.#pointsApiService.deleteEvent(update);
+      await this.#eventsApiService.deleteEvent(update);
       this.#events.splice(index, 1);
       this._notify(updateType, update);
     } catch (err) {
@@ -87,15 +86,15 @@ export default class EventsModel extends Observable {
     this._notify(updateType);
   }
 
-  #adaptToClient(point) {
-    point.basePrice = point['base_price'];
-    point.dateFrom = point['date_from'];
-    point.dateTo = point['date_to'];
+  #adaptToClient(event) {
+    event.basePrice = event['base_price'];
+    event.dateFrom = event['date_from'];
+    event.dateTo = event['date_to'];
 
-    delete point['base_price'];
-    delete point['date_from'];
-    delete point['date_to'];
-    return point;
+    delete event['base_price'];
+    delete event['date_from'];
+    delete event['date_to'];
+    return event;
   }
 
 }
