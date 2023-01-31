@@ -21,6 +21,9 @@ export default class NewEventPresenter {
   }
 
   init({destinations, offersByType}) {
+    if (this.#eventEditComponent !== null) {
+      return;
+    }
 
     this.#destinations = destinations;
     this.#allOffers = offersByType;
@@ -54,7 +57,6 @@ export default class NewEventPresenter {
       UpdateType.MAJOR,
       {...event, id: nanoid()}
     );
-    this.destroy();
   };
 
   #handleDeleteClick = () => {

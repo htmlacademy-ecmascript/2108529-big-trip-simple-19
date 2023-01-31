@@ -59,7 +59,6 @@ export default class EventsModel extends Observable {
   }
 
   async addEvent(updateType, update) {
-
     try {
       const response = await this.#pointsApiService.createEvent(update);
       const newEvent = this.#adaptToClient(response);

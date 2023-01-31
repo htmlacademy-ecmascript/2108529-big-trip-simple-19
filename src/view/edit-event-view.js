@@ -140,7 +140,7 @@ function createEditPointTemplate(event, destination, availableOffers, allOffers,
                   </div>
 
                   <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
-                  ${!isNewPoint ? `<button class="event__reset-btn" type="button" ${isDisabled ? 'disabled' : ''}>${isDeleting ? '...Deleting' : 'Delete'}</button>` : ''}
+                  ${!isNewPoint ? `<button class="event__reset-btn" type="button" ${isDisabled ? 'disabled' : ''}>${isDeleting ? 'Deleting...' : 'Delete'}</button>` : ''}
                   ${isNewPoint ? `<button class="event__reset-btn" type="button" ${isDisabled ? 'disabled' : ''}>Cancel</button>` : ''}
                   ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
