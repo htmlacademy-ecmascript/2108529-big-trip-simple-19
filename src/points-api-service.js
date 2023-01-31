@@ -65,7 +65,6 @@ export default class PointsApiService extends ApiService {
     delete point.dateFrom;
     delete point.dateTo;
 
-    console.log(point);
     return point;
   }
 }

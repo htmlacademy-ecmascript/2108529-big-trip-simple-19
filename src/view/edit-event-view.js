@@ -13,13 +13,16 @@ const eventInitialState = {
   destination: 1,
   id: nanoid(),
   offers: [],
-  type: 'flight'
+  type: 'flight',
+  isDisabled: false,
+  isSaving: false,
+  isDeleting: false,
 };
 
-function createAvailableOffersTemplate(offers, availableOffers) {
+function createAvailableOffersTemplate(offers, availableOffers, isDisabled) {
 
   const availableOffersElements = availableOffers.map((offer) => `<div class="event__offer-selector">
-                         <input data-offer=${offer.id} class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''}>
+                         <input data-offer=${offer.id} class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name=${offer.title} ${offers.includes(offer.id) ? 'checked' : ''} ${isDisabled ? 'disabled' : ''}>
                          <label class="event__offer-label" for="event-offer-${offer.id}"}>
                            <span class="event__offer-title">${offer.title}</span>
                            +€&nbsp;
@@ -72,11 +75,20 @@ function createDestinationNameOptionsTemplate(destinations, event) {
 
 function createEditPointTemplate(event, destination, availableOffers, allOffers, allDestinations, isNewPoint) {
 
-  // const {type, dateFrom, dateTo, basePrice, offers} = event;
-  const availableOffersContainer = availableOffers.length ? createAvailableOffersTemplate(event.offers, availableOffers) : '';
+  const {
+    type,
+    dateFrom,
+    dateTo,
+    basePrice,
+    offers,
+    isDisabled,
+    isSaving,
+    isDeleting,
+  } = event;
+  const availableOffersContainer = availableOffers.length ? createAvailableOffersTemplate(offers, availableOffers, isDisabled) : '';
 
   const eventTypes = allOffers.map((offer) => offer.type);
-  const eventTypesList = createEventTypesListTemplate(eventTypes, event.type);
+  const eventTypesList = createEventTypesListTemplate(eventTypes, type);
 
   //Deciding whether to display the destination section
   const isDestinationDisplayed = destination.description || destination.pictures.length;
@@ -92,9 +104,9 @@ function createEditPointTemplate(event, destination, availableOffers, allOffers,
                   <div class="event__type-wrapper">
                     <label class="event__type  event__type-btn" for="event-type-toggle-1">
                       <span class="visually-hidden">Choose event type</span>
-                      <img class="event__type-icon" width="17" height="17" src="img/icons/${event?.type}.png" alt="Event type icon">
+                      <img class="event__type-icon" width="17" height="17" src="img/icons/${type}.png" alt="Event type icon">
                     </label>
-                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+                    <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? 'disabled' : ''}>
 
                     <div class="event__type-list">
                       <fieldset class="event__type-group">
@@ -106,17 +118,17 @@ function createEditPointTemplate(event, destination, availableOffers, allOffers,
 
                   <div class="event__field-group  event__field-group--destination">
                     <label class="event__label  event__type-output" for="event-destination-1">
-                      ${event?.type}
+                      ${type}
                     </label>
-                    <select class='event-destination-select'>${destinationNameOptionsTemplate}</select>
+                    <select class='event-destination-select' ${isDisabled ? 'disabled' : ''}>${destinationNameOptionsTemplate}</select>
                   </div>
 
                   <div class="event__field-group  event__field-group--time">
                     <label class="visually-hidden" for="event-start-time-1">From</label>
-                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value=${dayjs(event?.dateFrom).format('YY/MM/DD')}>
+                    <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value=${dayjs(dateFrom).format('YY/MM/DD')} ${isDisabled ? 'disabled' : ''}>
                     —
                     <label class="visually-hidden" for="event-end-time-1">To</label>
-                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value=${dayjs(event?.dateTo).format('YY/MM/DD')}>
+                    <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value=${dayjs(dateTo).format('YY/MM/DD')} ${isDisabled ? 'disabled' : ''}>
                   </div>
 
                   <div class="event__field-group  event__field-group--price">
@@ -124,11 +136,12 @@ function createEditPointTemplate(event, destination, availableOffers, allOffers,
                       <span class="visually-hidden">Price</span>
                       €
                     </label>
-                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value=${event?.basePrice}>
+                    <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value=${basePrice} ${isDisabled ? 'disabled' : ''}>
                   </div>
 
-                  <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-                  <button class="event__reset-btn" type="reset">${isNewPoint ? 'Cancel' : 'Delete'}</button>
+                  <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+                  ${!isNewPoint ? `<button class="event__reset-btn" type="button" ${isDisabled ? 'disabled' : ''}>${isDeleting ? '...Deleting' : 'Delete'}</button>` : ''}
+                  ${isNewPoint ? `<button class="event__reset-btn" type="button" ${isDisabled ? 'disabled' : ''}>Cancel</button>` : ''}
                   ${isNewPoint ? '' : `<button class="event__rollup-btn" type="button">
                     <span class="visually-hidden">Open event</span>
                   </button>`}
@@ -154,7 +167,16 @@ export default class EditEventView extends AbstractStatefulView {
   #isNewPoint = false;
   #handleEscKeyDown = null;
 
-  constructor({event, destinations, allOffers, onFormSubmit, onRollupButtonClick, onDeleteButtonClick, isNewPoint, onEscKeyDown}) {
+  constructor({
+    event,
+    destinations,
+    allOffers,
+    onFormSubmit,
+    onRollupButtonClick,
+    onDeleteButtonClick,
+    isNewPoint,
+    onEscKeyDown
+  }) {
     super();
     this.#sourcedEvent = event;
     this.#handleRollupButtonClick = onRollupButtonClick;
@@ -191,11 +213,14 @@ export default class EditEventView extends AbstractStatefulView {
     return event ? {
       ...event,
       availableOffers,
-      eventDestination
+      eventDestination,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
     } : {
       ...eventInitialState,
       availableOffers,
-      eventDestination
+      eventDestination,
     };
   }
 
@@ -205,6 +230,9 @@ export default class EditEventView extends AbstractStatefulView {
 
     delete event.eventDestination;
     delete event.availableOffers;
+    delete event.isDisabled;
+    delete event.isSaving;
+    delete event.isDeleting;
 
     return event;
   }

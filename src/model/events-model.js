@@ -18,7 +18,6 @@ export default class EventsModel extends Observable {
     try {
       const points = await this.#pointsApiService.points;
       this.#events = points.map(this.#adaptToClient);
-      console.log(this.#events);
 
       this.#destinations = await this.#pointsApiService.destinations;
       this.#offersByType = await this.#pointsApiService.offers;
