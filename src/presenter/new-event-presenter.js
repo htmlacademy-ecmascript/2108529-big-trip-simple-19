@@ -61,6 +61,13 @@ export default class NewEventPresenter {
     this.destroy();
   };
 
+  setSaving() {
+    this.#eventEditComponent.updateElement({
+      isDisabled: true,
+      isSaving: true,
+    });
+  }
+
   destroy() {
 
     if (this.#eventEditComponent === null) {
