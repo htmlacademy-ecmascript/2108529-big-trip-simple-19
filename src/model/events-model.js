@@ -53,26 +53,38 @@ export default class EventsModel extends Observable {
       const response = await this.#pointsApiService.updatePoint(update);
       const updatedPoint = this.#adaptToClient(response);
       this.#events = this.#events.map((event) => event.id === updatedPoint.id ? updatedPoint : event);
-      this._notify(updateType, update);
+      this._notify(updateType, updatedPoint);
     } catch (err) {
       throw new Error('Can\'t update task');
     }
   }
 
-  addEvent(updateType, update) {
-    this.#events = [update, ...this.#events];
+  async addEvent(updateType, update) {
 
-    this._notify(updateType, update);
+    try {
+      const response = await this.#pointsApiService.createEvent(update);
+      const newEvent = this.#adaptToClient(response);
+      this.#events = [newEvent, ...this.#events];
+      this._notify(updateType, newEvent);
+    } catch (err) {
+      throw new Error('Can\'t add event');
+    }
   }
 
-  deleteEvent(updateType, update) {
+  async deleteEvent(updateType, update) {
     const index = this.#events.findIndex((event) => event.id === update.id);
 
     if (index === -1) {
       throw new Error('Can\'t delete unexisting event');
     }
 
-    this.#events.splice(index, 1);
+    try {
+      await this.#pointsApiService.deleteEvent(update);
+      this.#events.splice(index, 1);
+      this._notify(updateType, update);
+    } catch (err) {
+      throw new Error('Can\'t delete event');
+    }
 
     this._notify(updateType);
   }

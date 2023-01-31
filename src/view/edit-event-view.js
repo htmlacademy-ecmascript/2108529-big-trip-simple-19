@@ -225,6 +225,8 @@ export default class EditEventView extends AbstractStatefulView {
       ?.addEventListener('change', this.#chosenOffersChangeHandler);
     this.element.querySelector('.event__reset-btn')
       .addEventListener('click', this.#deleteClickHandler);
+    this.element.querySelector('.event__input--price')
+      .addEventListener('change', this.#priceChangeHandler);
 
     this.#setDatepicker();
   }
@@ -322,5 +324,9 @@ export default class EditEventView extends AbstractStatefulView {
       offers.push(+offer);
       offers.sort((a, b) => a - b);
     }
+  };
+
+  #priceChangeHandler = (evt) => {
+    this.updateElement({basePrice: +evt.target.value});
   };
 }
