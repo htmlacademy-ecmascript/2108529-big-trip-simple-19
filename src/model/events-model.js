@@ -12,7 +12,8 @@ export default class EventsModel extends Observable {
     super();
     this.#pointsApiService = pointsApiService;
 
-    this.#pointsApiService.points.then((response) => console.log(response));
+    // this.#pointsApiService.points.then((points) => console.log(points));
+    this.#pointsApiService.points.then((points) => console.log(points.map(this.#adaptToClient)));
 
   }
 
@@ -56,6 +57,18 @@ export default class EventsModel extends Observable {
     this.#events.splice(index, 1);
 
     this._notify(updateType);
+  }
+
+  #adaptToClient(point) {
+    point.basePrice = point['base_price'];
+    point.dateFrom = point['date_from'];
+    point.dateTo = point['date_to'];
+
+    delete point['base_price'];
+    delete point['date_from'];
+    delete point['date_to'];
+
+    return point;
   }
 
 }
